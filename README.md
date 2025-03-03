@@ -58,6 +58,7 @@ If you continue to experience issues, please contact support or refer to the doc
 
 
 ---
+---
 
 
 # How to Run  
@@ -95,6 +96,9 @@ If your **GPU has more than 6GB of VRAM**, you can replace `vl.exe` with `vl-gpu
 ![Screenshot-medicalphoto](https://github.com/whria78/llama-qwen-vl/raw/main/capture-medicalphoto1.PNG)
 
 - If you upload the `D:/qwen/t` folder to **MedicalPhoto**, the JSON data will be applied, and the photos will be saved accordingly.  
+
+---
+---
 
 # How to Build
 ## Prerequisites
