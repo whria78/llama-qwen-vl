@@ -1,3 +1,10 @@
+## Example
+
+![Screenshot-before](https://github.com/whria78/llama-qwen-vl/raw/main/capture-before.PNG)
+![Screenshot-after](https://github.com/whria78/llama-qwen-vl/raw/main/capture-after.PNG)
+
+---
+
 ## Memory Requirements
 To ensure optimal performance, at least **64GB of RAM** is recommended. If your system has less memory, you may experience slow processing times or application crashes.
 
@@ -49,6 +56,7 @@ If you continue to experience issues, please contact support or refer to the doc
 
 
 ---
+
 
 # How to Run  
 
