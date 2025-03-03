@@ -43,6 +43,32 @@ If you continue to experience issues, please contact support or refer to the doc
 
 ---
 
+# How to Run
+
+Execute `VLRunner.exe`.  
+The basic execution command is saved in `VLRunner.txt`:
+
+```
+vl.exe -m ./gguf/Qwen2-VL-72B-Instruct-Q4_K_M.gguf --mmproj ./gguf/Qwen2-VL-72B-Instruct-vision-encoder.gguf --temp 0.1 -p "Extract the patient's name and registration number. Response must be in JSON format ('Name','ID')." -t 16 --organize-photo --image
+```
+
+### GPU Acceleration  
+If your **GPU has more than 12GB of VRAM**, you can replace `vl.exe` with `vl-gpu.exe` for faster execution.
+
+### Running the Application  
+1. Click the **Browse** button to select the folder containing the images.  
+2. Click **Run** to execute the stored command.  
+
+### Performance Estimations  
+- **High-end GPU (e.g., RTX 3080 Ti)** → `vl-gpu.exe` takes about **1 minute per image**.  
+- **Low-end GPU (e.g., GTX 1050 Ti)** → `vl.exe` takes about **10 minutes per image**.  
+- **CPU Execution** → `vl.exe` takes about **15–20 minutes per image**.  
+
+### Output  
+- The results are saved as `folder_name.json` inside the selected folder.  
+- Clinical photos are stored in the `/RESULT` folder, organized by date.
+
+
 # Clone all repositories
 ## Prerequisites
 Before building OpenCV, make sure you have the following tools installed:
