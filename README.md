@@ -69,7 +69,7 @@ If your **GPU has more than 12GB of VRAM**, you can replace `vl.exe` with `vl-gp
 - Clinical photos are stored in the `/RESULT` folder, organized by date.
 
 
-# Clone all repositories
+# How to Build
 ## Prerequisites
 Before building OpenCV, make sure you have the following tools installed:
 
