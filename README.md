@@ -88,9 +88,9 @@ If your **GPU has more than 6GB of VRAM**, you can replace `vl.exe` with `vl-gpu
 - The results are saved as `folder_name.json` inside the selected folder.  
 - You can check the results immediately in the `/RESULT` folder, where clinical photos are organized by date.
 
-![Screenshot1](https://github.com/whria78/llama-qwen-vl/raw/main/capture2.PNG)
+![Screenshot-tt-json](https://github.com/whria78/llama-qwen-vl/raw/main/capture-tt-json.PNG)
 
-- In the example above, the command is executed in the `D:/qwen/t` folder, and the output is saved as `t.json`.  
+- In the example above, the command is executed in the `D:/qwen/tt` folder, and the output is saved as `tt.json`.  
 
 ![Screenshot-medicalphoto](https://github.com/whria78/llama-qwen-vl/raw/main/capture-medicalphoto1.PNG)
 
