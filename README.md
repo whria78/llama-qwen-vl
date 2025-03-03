@@ -32,13 +32,7 @@ cd D:/opencv/build
 Run the following CMake command:
 
 ```sh
-cmake -G "Visual Studio 17 2022" -A x64 ^
-      -D CMAKE_BUILD_TYPE=Release ^
-      -D CMAKE_INSTALL_PREFIX=D:/opencv/install ^
-      -D OPENCV_EXTRA_MODULES_PATH=D:/opencv_contrib/modules ^
-      -D BUILD_opencv_world=ON ^
-      -D BUILD_SHARED_LIBS=ON ^
-      D:/opencv
+cmake -G "Visual Studio 17 2022" -A x64 -D CMAKE_BUILD_TYPE=Release -D BUILD_opencv_world=ON -D BUILD_SHARED_LIBS=ON ..
 ```
 
 ## 2. Build OpenCV
