@@ -76,7 +76,7 @@ vl.exe -m ./gguf/Qwen2-VL-72B-Instruct-Q4_K_M.gguf --mmproj ./gguf/Qwen2-VL-72B-
 
 
 ### GPU Acceleration  
-If your **GPU has more than 12GB of VRAM**, you can replace `vl.exe` with `vl-gpu.exe` for faster execution.
+If your **GPU has more than 6GB of VRAM**, you can replace `vl.exe` with `vl-gpu.exe` for faster execution.
 
 ### Performance Estimations  
 - **High-end GPU (e.g., RTX 3080 Ti)** → `vl-gpu.exe` takes about **1 minute per image**.  
