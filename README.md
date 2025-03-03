@@ -18,6 +18,8 @@ Clone the Repository
 git clone https://github.com/whria78/llama.cpp
 ```
 
+---
+
 # OpenCV Windows Build Guide (Using CMake & MSVC)
 
 ## 1. Configure Build with CMake
@@ -42,11 +44,12 @@ cmake -G "Visual Studio 17 2022" -A x64 -D CMAKE_BUILD_TYPE=Release -D BUILD_ope
 cmake --build . --config Release --target INSTALL
 ```
 
-### 📌 Build Output
+### Build Output
 - DLL files: `..../opencv/install/x64/vc17/bin/opencv_world490.dll`
 - LIB files: `..../opencv/install/x64/vc17/lib/opencv_world490.lib`
 
 ---
+
 
 
 # Compile ONNXRUNTIME (CPU)
@@ -77,9 +80,18 @@ Ensure that you have Python 3.10 or later installed on your system.
    - The default CMake generator on Windows is **Visual Studio 2022**.
    - Other Visual Studio versions are **not supported**.
 
+## Build Output
+- DLL files: `..../build/Windows/Release/Release/onnxruntime.dll`
+- LIB files: `..../build/Windows/Release/Release/onnxruntime.lib`
+
+---
+
 ### Note
 - Ensure that your **Python interpreter** is a **64-bit Windows application**.
 - **32-bit builds are no longer supported.**
+
+
+---
 
 
 # Building llama.cpp with CUDA 12.4 on Windows
