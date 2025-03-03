@@ -61,10 +61,6 @@ vl.exe -m ./gguf/Qwen2-VL-72B-Instruct-Q4_K_M.gguf --mmproj ./gguf/Qwen2-VL-72B-
 ### GPU Acceleration  
 If your **GPU has more than 12GB of VRAM**, you can replace `vl.exe` with `vl-gpu.exe` for faster execution.
 
-### Running the Application  
-1. Click the **Browse** button to select the folder containing the images.  
-2. Click **Run** to execute the stored command.  
-
 ### Performance Estimations  
 - **High-end GPU (e.g., RTX 3080 Ti)** → `vl-gpu.exe` takes about **1 minute per image**.  
 - **Low-end GPU (e.g., GTX 1050 Ti)** → `vl.exe` takes about **10 minutes per image**.  
@@ -103,6 +99,7 @@ git clone https://github.com/whria78/llama-qwen-vl
 Create a build directory and configure the project:
 
 ```sh
+cd opencv
 mkdir build
 cd build
 ```
@@ -140,6 +137,7 @@ Ensure that you have Python 3.10 or later installed on your system.
 #### Install CMake 3.28 or higher
 
   ```sh
+  cd onnxruntime
   python3 -m pip install cmake
   which cmake
   ```
