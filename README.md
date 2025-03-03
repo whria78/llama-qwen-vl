@@ -2,17 +2,20 @@
 To ensure optimal performance, at least **64GB of RAM** is recommended. If your system has less memory, you may experience slow processing times or application crashes.
 
 ## Microsoft Visual C++ Redistributable
+
+![Screenshot-down-msvc](https://github.com/whria78/llama-qwen-vl/raw/main/capture-down-msvc.PNG)
+
 This application requires an updated version of the **Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017, 2019, and 2022**.
 
 If you encounter an issue related to missing or outdated redistributable packages, please download the latest version from the official Microsoft website:
 
 [Download Microsoft Visual C++ Redistributable](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#visual-studio-2015-2017-2019-and-2022)
 
-## Model Download
-The application requires GGUF model files to function correctly. If the `./gguf` directory does not contain any `.gguf` files, please download the required models from Hugging Face.
 
+## Model Download
 ![Screenshot-down-gguf](https://github.com/whria78/llama-qwen-vl/raw/main/capture-down-gguf.PNG)
 
+The application requires GGUF model files to function correctly. If the `./gguf` directory does not contain any `.gguf` files, please download the required models from Hugging Face.
 
 ### Qwen2-VL 72B Model:
 - Repository: [Qwen2-VL-72B-Instruct-GGUF](https://huggingface.co/second-state/Qwen2-VL-72B-Instruct-GGUF)
@@ -27,6 +30,7 @@ The application requires GGUF model files to function correctly. If the `./gguf`
   - `Qwen2-VL-7B-Instruct-vision-encoder.gguf`
 
 Download and place the appropriate files inside the `./gguf` directory.
+
 
 ## Unicode Support Issue
 If you receive an error related to Unicode support, ensure that your system is using **UTF-8** encoding.
