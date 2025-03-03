@@ -3,7 +3,8 @@
 ![Screenshot-before](https://github.com/whria78/llama-qwen-vl/raw/main/capture-before.PNG)
 ![Screenshot-after](https://github.com/whria78/llama-qwen-vl/raw/main/capture-after.PNG)
 
-The sample photos are available at: https://github.com/whria78/llama-qwen-vl/tree/main/samples
+- The sample photos are available at: https://github.com/whria78/llama-qwen-vl/tree/main/samples
+
 ---
 
 ## Memory Requirements
