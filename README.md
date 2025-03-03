@@ -43,14 +43,18 @@ If you continue to experience issues, please contact support or refer to the doc
 
 ---
 
-# How to Run
+# How to Run  
 
-Execute `VLRunner.exe`.  
-The basic execution command is saved in `VLRunner.txt`:
+`VLRunner.exe` provides a GUI interface to execute the following tasks. The default command is stored in `VLRunner.txt`.  
+
+You can also run it from the Windows **Command Prompt (cmd)** using the following format:  
 
 ```
-vl.exe -m ./gguf/Qwen2-VL-72B-Instruct-Q4_K_M.gguf --mmproj ./gguf/Qwen2-VL-72B-Instruct-vision-encoder.gguf --temp 0.1 -p "Extract the patient's name and registration number. Response must be in JSON format ('Name','ID')." -t 16 --organize-photo --image
+vl.exe -m ./gguf/Qwen2-VL-72B-Instruct-Q4_K_M.gguf --mmproj ./gguf/Qwen2-VL-72B-Instruct-vision-encoder.gguf --temp 0.1 -p "Extract the patient's name and registration number. Response must be in JSON format ('Name','ID')." -t 16 --organize-photo --image [folder_name]
 ```
+
+**Note:** Replace `[folder_name]` with the actual path of the folder containing the images.
+
 
 ### GPU Acceleration  
 If your **GPU has more than 12GB of VRAM**, you can replace `vl.exe` with `vl-gpu.exe` for faster execution.
