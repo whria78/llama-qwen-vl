@@ -82,7 +82,7 @@ If your **GPU has more than 12GB of VRAM**, you can replace `vl.exe` with `vl-gp
 
 - In the example above, the command is executed in the `D:/qwen/t` folder, and the output is saved as `t.json`.  
 
-![Screenshot-medicalphoto](https://github.com/whria78/llama-qwen-vl/raw/main/capture-medicalphoto.PNG)
+![Screenshot-medicalphoto](https://github.com/whria78/llama-qwen-vl/raw/main/capture-medicalphoto1.PNG)
 
 - If you upload the `D:/qwen/t` folder to **MedicalPhoto**, the JSON data will be applied, and the photos will be saved accordingly.  
 
