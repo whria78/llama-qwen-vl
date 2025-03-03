@@ -12,7 +12,7 @@ If you encounter an issue related to missing or outdated redistributable package
 [Download Microsoft Visual C++ Redistributable](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#visual-studio-2015-2017-2019-and-2022)
 
 
-## Model Download
+## Model Download (Qwen2-VL 72B or 7B)
 ![Screenshot-down-gguf](https://github.com/whria78/llama-qwen-vl/raw/main/capture-down-gguf.PNG)
 
 The application requires GGUF model files to function correctly. If the `./gguf` directory does not contain any `.gguf` files, please download the required models from Hugging Face.
