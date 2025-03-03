@@ -45,6 +45,8 @@ If you continue to experience issues, please contact support or refer to the doc
 
 # How to Run  
 
+![Screenshot](https://github.com/whria78/llama-qwen-vl/raw/main/capture1.PNG)
+
 `VLRunner.exe` provides a GUI interface to execute the following tasks. The default command is stored in `VLRunner.txt`.  
 
 You can also run it from the Windows **Command Prompt (cmd)** using the following format:  
