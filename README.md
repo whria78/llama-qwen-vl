@@ -25,8 +25,8 @@ git clone https://github.com/whria78/llama.cpp
 Create a build directory and configure the project:
 
 ```sh
-mkdir D:/opencv/build
-cd D:/opencv/build
+mkdir build
+cd build
 ```
 
 Run the following CMake command:
@@ -43,8 +43,8 @@ cmake --build . --config Release --target INSTALL
 ```
 
 ### 📌 Build Output
-- DLL files: `D:/opencv/install/x64/vc17/bin/opencv_world490.dll`
-- LIB files: `D:/opencv/install/x64/vc17/lib/opencv_world490.lib`
+- DLL files: `..../opencv/install/x64/vc17/bin/opencv_world490.dll`
+- LIB files: `..../opencv/install/x64/vc17/lib/opencv_world490.lib`
 
 ---
 
