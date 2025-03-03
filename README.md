@@ -45,8 +45,8 @@ cmake --build . --config Release --target INSTALL
 ```
 
 ### Build Output
-- DLL files: `..../opencv/install/x64/vc17/bin/opencv_world490.dll`
-- LIB files: `..../opencv/install/x64/vc17/lib/opencv_world490.lib`
+- DLL files: `..../opencv/install/x64/vc17/bin/opencv_world4120.dll`
+- LIB files: `..../opencv/install/x64/vc17/lib/opencv_world4120.lib`
 
 ---
 
@@ -81,7 +81,7 @@ Ensure that you have Python 3.10 or later installed on your system.
    - Other Visual Studio versions are **not supported**.
 
 ## Build Output
-- DLL files: `..../build/Windows/Release/Release/onnxruntime.dll`
+- DLL files: `..../build/Windows/Release/Release/onnxruntime.dll`, `..../build/Windows/Release/Release/onnxruntime_providers_shared.dll`
 - LIB files: `..../build/Windows/Release/Release/onnxruntime.lib`
 
 ---
