@@ -30,7 +30,7 @@ If you receive an error related to Unicode support, ensure that your system is u
 
 ### How to Enable UTF-8 Support:
 
-![RegionSetting](https://whria78.github.io/medicalphoto/imgs/RegionSetting.png)
+![Screenshot0](https://github.com/whria78/llama-qwen-vl/raw/main/capture0.png)
 
 1. Open **Settings** > **Time & Language** > **Language & region**.
 2. Click **Administrative language settings**.
