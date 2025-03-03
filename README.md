@@ -15,7 +15,7 @@ After installation, open **"x64 Native Tools Command Prompt for VS 2022"** to pr
 Clone the Repository
 
 ```sh
-git clone https://github.com/whria78/llama.cpp
+git clone https://github.com/whria78/llama-qwen-vl
 ```
 
 ---
