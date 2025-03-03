@@ -12,6 +12,12 @@ After installation, open **"x64 Native Tools Command Prompt for VS 2022"** to pr
 "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
 ```
 
+Clone the Repository
+
+```sh
+git clone https://github.com/whria78/llama.cpp
+```
+
 # OpenCV Windows Build Guide (Using CMake & MSVC)
 
 ## 1. Configure Build with CMake
