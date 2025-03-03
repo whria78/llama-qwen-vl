@@ -71,17 +71,11 @@ If your **GPU has more than 12GB of VRAM**, you can replace `vl.exe` with `vl-gp
 
 # How to Build
 ## Prerequisites
-Before building OpenCV, make sure you have the following tools installed:
+Make sure you have the following tools installed:
 
 - **Visual Studio 2022 Community Edition** (Including C++ Development Tools)
 - **CMake** ([Download](https://cmake.org/download/))
 - **Git** ([Download](https://git-scm.com/downloads))
-
-After installation, open **"x64 Native Tools Command Prompt for VS 2022"** to proceed.
-
-```sh
-"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
-```
 
 Clone the Repository
 
@@ -141,9 +135,8 @@ Ensure that you have Python 3.10 or later installed on your system.
 
 ## Build Instructions
 
-1. Open **Developer Command Prompt for Visual Studio** (matching the version you intend to use). This ensures the correct environment settings.
+Run the following command to build ONNX Runtime:
 
-2. Run the following command to build ONNX Runtime:
    ```sh
    .\build.bat --config Release --build_shared_lib --parallel --compile_no_warning_as_error --skip_submodule_sync
    ```
@@ -185,11 +178,7 @@ C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4
 ## 2. Configure CMake
 Run the following command to configure the build with CUDA support:
 ```sh
-cmake.exe -S . -B build ^
-    -DGGML_CCACHE=OFF ^
-    -DBUILD_SHARED_LIBS=ON ^
-    -DGGML_CUDA=ON ^
-    -DCMAKE_GENERATOR_TOOLSET="cuda=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4"
+cmake.exe -S . -B build -DGGML_CCACHE=OFF -DBUILD_SHARED_LIBS=ON -DGGML_CUDA=ON -DCMAKE_GENERATOR_TOOLSET="cuda=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4"
 ```
 
 
