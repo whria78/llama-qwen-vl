@@ -11,6 +11,9 @@ If you encounter an issue related to missing or outdated redistributable package
 ## Model Download
 The application requires GGUF model files to function correctly. If the `./gguf` directory does not contain any `.gguf` files, please download the required models from Hugging Face.
 
+![Screenshot-down-gguf](https://github.com/whria78/llama-qwen-vl/raw/main/capture-down-gguf.PNG)
+
+
 ### Qwen2-VL 72B Model:
 - Repository: [Qwen2-VL-72B-Instruct-GGUF](https://huggingface.co/second-state/Qwen2-VL-72B-Instruct-GGUF)
 - Required files:
