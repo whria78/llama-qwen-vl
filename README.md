@@ -45,7 +45,7 @@ If you continue to experience issues, please contact support or refer to the doc
 
 # How to Run  
 
-![Screenshot](https://github.com/whria78/llama-qwen-vl/raw/main/capture1.PNG)
+![Screenshot1](https://github.com/whria78/llama-qwen-vl/raw/main/capture1.PNG)
 
 `VLRunner.exe` provides a GUI interface to execute the following tasks. The default command is stored in `VLRunner.txt`.  
 
@@ -71,9 +71,14 @@ If your **GPU has more than 12GB of VRAM**, you can replace `vl.exe` with `vl-gp
 - **CPU Execution** → `vl.exe` takes about **15–20 minutes per image**.  
 
 ### Output  
-- The results are saved as `folder_name.json` inside the selected folder.  
-- Clinical photos are stored in the `/RESULT` folder, organized by date.
 
+- The results are saved as `folder_name.json` inside the selected folder.  
+
+![Screenshot1](https://github.com/whria78/llama-qwen-vl/raw/main/capture2.PNG)
+
+- In the example above, the command is executed in the `D:/qwen/t` folder, and the output is saved as `t.json`.  
+- If you upload the `D:/qwen/t` folder to **MedicalPhoto**, the JSON data will be applied, and the photos will be saved accordingly.  
+- You can check the results immediately in the `/RESULT` folder, where clinical photos are organized by date.
 
 # How to Build
 ## Prerequisites
