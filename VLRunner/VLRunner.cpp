@@ -5,6 +5,8 @@
 #include <filesystem>
 #include <shellapi.h>
 #include <sysinfoapi.h>
+#include <iostream>
+#include <sstream>
 
 #define ID_BUTTON_BROWSE  1
 #define ID_BUTTON_RUN     2
@@ -24,6 +26,34 @@ void LoadDefaultCommand() {
         defaultCommand = line;
     }
 }
+bool IsVersionGreaterOrEqual(const std::wstring& currentVersion, const std::wstring& requiredVersion) {
+    std::wstringstream curStream(currentVersion);
+    std::wstringstream reqStream(requiredVersion);
+    int curMajor, curMinor, curBuild, curRev;
+    int reqMajor, reqMinor, reqBuild, reqRev;
+
+    wchar_t dot;
+    curStream >> curMajor >> dot >> curMinor >> dot >> curBuild >> dot >> curRev;
+    reqStream >> reqMajor >> dot >> reqMinor >> dot >> reqBuild >> dot >> reqRev;
+
+    if (curMajor > reqMajor) return true;
+    if (curMajor < reqMajor) return false;
+    if (curMinor > reqMinor) return true;
+    if (curMinor < reqMinor) return false;
+    if (curBuild > reqBuild) return true;
+    if (curBuild < reqBuild) return false;
+    if (curRev >= reqRev) return true;
+    return false;
+}
+
+void TrimString(std::wstring& str) {
+    while (!str.empty() && (str.back() == L'\n' || str.back() == L'\r' || str.back() == L' ' || str.back() == L'\t')) {
+        str.pop_back();
+    }
+    while (!str.empty() && (str.front() == L' ' || str.front() == L'\t' || str.front() == L'\n' || str.front() == L'\r' || !iswdigit(str.front()))) {
+        str.erase(str.begin());
+    }
+}
 
 void CheckRedistributableVersion(HWND hwnd) {
     std::wstring command = L"reg query \"HKLM\\SOFTWARE\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\x64\" /v Version";
@@ -37,11 +67,19 @@ void CheckRedistributableVersion(HWND hwnd) {
     }
     _pclose(pipe);
 
-    if (result.find(L"14.42.34438.0") == std::wstring::npos) {
-        int result = MessageBoxW(hwnd, L"Redistributable packages for Visual Studio 2015, 2017, 2019, and 2022 are not up-to-date. Please visit https://whria78.github.io/medicalphoto/warning.", L"Version Warning", MB_OK | MB_ICONWARNING);
-        if (result == IDOK) ShellExecuteW(NULL, L"open", L"https://whria78.github.io/medicalphoto/warning", NULL, NULL, SW_SHOWNORMAL);
+    size_t pos = result.find(L"REG_SZ");
+    if (pos != std::wstring::npos) {
+        std::wstring currentVersion = result.substr(pos + 6);
+        TrimString(currentVersion);
+
+        std::wstring requiredVersion = L"14.42.34400.0";
+        if (!IsVersionGreaterOrEqual(currentVersion, requiredVersion)) {
+            int res = MessageBoxW(hwnd, L"Redistributable packages for Visual Studio 2015, 2017, 2019, and 2022 are not up-to-date. Please visit https://whria78.github.io/medicalphoto/warning.", L"Version Warning", MB_OK | MB_ICONWARNING);
+            if (res == IDOK) ShellExecuteW(NULL, L"open", L"https://whria78.github.io/medicalphoto/warning", NULL, NULL, SW_SHOWNORMAL);
+        }
     }
 }
+
 
 
 void CheckGGUFDirectory(HWND hwnd) {

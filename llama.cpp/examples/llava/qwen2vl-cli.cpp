@@ -314,6 +314,7 @@ vector<float> run_multiple_onnx_models(const string& image_path, const vector<st
 
 
 using json = nlohmann::json;
+json jsonArray;
 
 std::string extract_json(const std::string& response) {
     // 개행 문자를 포함하여 { ... } 패턴을 찾음
@@ -1032,151 +1033,145 @@ int main(int argc, char ** argv) {
                         cout  << "█ WHRIA: CNNs predict that it is a Index Photo. "  << endl;
 
 
+                        // 기존 JSON 파일을 읽고 배열로 변환
+                        //json jsonArray;
+                        std::string out_json_path=(std::filesystem::path(image_folder) / std::filesystem::path(std::filesystem::path(image_folder).filename().string()+".json")).string();
+                        std::replace(out_json_path.begin(), out_json_path.end(), '\\', '/');
 
-                    // 기존 JSON 파일을 읽고 배열로 변환
-                    json jsonArray;
-                    std::string out_json_path=(std::filesystem::path(image_folder) / std::filesystem::path(std::filesystem::path(image_folder).filename().string()+".json")).string();
-                    std::ifstream inFile(out_json_path);
-                    if (inFile.is_open()) {
-                        try {
-                            inFile >> jsonArray;
-                            if (jsonArray.is_object()) { // 기존 파일이 객체 `{}` 형태라면 배열로 변환
-                                json tmpArray = json::array();
-                                tmpArray.push_back(jsonArray);
-                                jsonArray = tmpArray;
-                            } else if (!jsonArray.is_array()) { // 객체도 배열도 아닌 경우 예외 처리
-                                throw std::runtime_error("Invalid JSON format: Expected array or object");
+                        std::ifstream inFile(out_json_path);
+                        if (inFile.is_open()) {
+                            try {
+                                inFile >> jsonArray;
+                                if (jsonArray.is_object()) { // 기존 파일이 객체 `{}` 형태라면 배열로 변환
+                                    json tmpArray = json::array();
+                                    tmpArray.push_back(jsonArray);
+                                    jsonArray = tmpArray;
+                                } else if (!jsonArray.is_array()) { // 객체도 배열도 아닌 경우 예외 처리
+                                    throw std::runtime_error("Invalid JSON format: Expected array or object");
+                                }
+                            } catch (const std::exception &e) {
+                                std::cerr  << "█ WHRIA: JSON file read error: " << e.what() << ". Initializing empty array."  <<std::endl;
+                                jsonArray = json::array(); // 오류 발생 시 빈 배열 생성
                             }
+                            inFile.close();
+                        } else {
+                            jsonArray = json::array(); // 파일이 없으면 빈 배열 생성
+                        }
+
+                        bool skip_ = false;
+                        for (auto &item : jsonArray) {
+                            if (item["Filename"] == image) {
+                                skip_ = true;
+                                break;
+                            }
+                        }
+                        if (skip_ || (result[1]<params.onnx_threshold)) continue; // done phots or clnicalphoto
+
+
+                        std::string response;
+                        std::string confirm;
+                        std::string err;
+
+                        try 
+                        {
+                        
+                            auto * ctx_llava = llava_init_context(&params, model);
+
+                            auto * image_embed = load_image(ctx_llava, &params, image);
+                            if (!image_embed) {
+                                LOG_ERR("%s: failed to load image %s. Terminating\n\n", __func__, image.c_str());
+                                return 1;
+                            }
+
+                            confirm = process_prompt(ctx_llava, image_embed, &params, "Does it include patient's name and registration number? Response must be YES or NO.");
+                            
+                            // response를 소문자로 변환
+                            std::transform(confirm.begin(), confirm.end(), confirm.begin(), ::tolower);
+                            // "yes"가 포함되어 있으면 bConfirm을 true로 설정
+                            if (confirm.find("yes") != std::string::npos) confirm="yes"; else confirm="";
+
+                            std::cout << std::endl;
+
+                            std::cout  << "█ WHRIA: Does it include patient's name and registration number? Response must be YES or NO. : " << confirm   << std::endl;
+
+                            llama_perf_context_print(ctx_llava->ctx_llama);
+
+                            llava_image_embed_free(image_embed);
+                            ctx_llava->model = NULL;
+                            llava_free(ctx_llava);
+                            
+                            ctx_llava = llava_init_context(&params, model);
+                            image_embed = load_image(ctx_llava, &params, image);
+                            
+                            // process the prompt
+                            response = process_prompt(ctx_llava, image_embed, &params, params.prompt);
+
+                            llama_perf_context_print(ctx_llava->ctx_llama);
+                            llava_image_embed_free(image_embed);
+                            ctx_llava->model = NULL;
+                            llava_free(ctx_llava);
+
+                            response=extract_json(response);
+                            std::cout  << "█ WHRIA: Extracted JSON:\n" << response  <<std::endl;
+
                         } catch (const std::exception &e) {
-                            std::cerr  << "█ WHRIA: JSON file read error: " << e.what() << ". Initializing empty array."  <<std::endl;
-                            jsonArray = json::array(); // 오류 발생 시 빈 배열 생성
-                        }
-                        inFile.close();
-                    } else {
-                        jsonArray = json::array(); // 파일이 없으면 빈 배열 생성
-                    }
-
-                    bool skip_ = false;
-                    for (auto &item : jsonArray) {
-                        if (item["Filename"] == image) {
-                            skip_ = true;
-                            break;
-                        }
-                    }
-                    if (skip_ || (result[1]<params.onnx_threshold)) continue; // done phots or clnicalphoto
-
-
-                    std::string response;
-                    std::string confirm;
-                    std::string err;
-
-                    try 
-                    {
-                    
-                        auto * ctx_llava = llava_init_context(&params, model);
-
-                        auto * image_embed = load_image(ctx_llava, &params, image);
-                        if (!image_embed) {
-                            LOG_ERR("%s: failed to load image %s. Terminating\n\n", __func__, image.c_str());
-                            return 1;
+                                cerr << e.what() << endl;
+                                err=e.what();
                         }
 
-                        confirm = process_prompt(ctx_llava, image_embed, &params, "Does it include patient's name and registration number? Response must be YES or NO.");
-                        
-                        // response를 소문자로 변환
-                        std::transform(confirm.begin(), confirm.end(), confirm.begin(), ::tolower);
-                        // "yes"가 포함되어 있으면 bConfirm을 true로 설정
-                        if (confirm.find("yes") != std::string::npos) confirm="yes"; else confirm="";
+                        json jsonObj; // 개별 JSON 객체
 
-                        std::cout << std::endl;
-
-                        std::cout  << "█ WHRIA: Does it include patient's name and registration number? Response must be YES or NO. : " << confirm   << std::endl;
-
-                        llama_perf_context_print(ctx_llava->ctx_llama);
-
-                        llava_image_embed_free(image_embed);
-                        ctx_llava->model = NULL;
-                        llava_free(ctx_llava);
-                        
-                        ctx_llava = llava_init_context(&params, model);
-                        image_embed = load_image(ctx_llava, &params, image);
-                        
-                        // process the prompt
-                        response = process_prompt(ctx_llava, image_embed, &params, params.prompt);
-
-                        llama_perf_context_print(ctx_llava->ctx_llama);
-                        llava_image_embed_free(image_embed);
-                        ctx_llava->model = NULL;
-                        llava_free(ctx_llava);
-
-                        response=extract_json(response);
-                        std::cout  << "█ WHRIA: Extracted JSON:\n" << response  <<std::endl;
-
-                    } catch (const std::exception &e) {
-                            cerr << e.what() << endl;
-                            err=e.what();
-                    }
-
-                    json jsonObj; // 개별 JSON 객체
-
-                    try {
-                        jsonObj = json::parse(response);
-                        jsonObj["response"] = response;
-                        jsonObj["err"] = err;
-                        jsonObj["Filename"] = image;
-                        jsonObj["Name"] = jsonObj.value("Name", "");
-                        jsonObj["ID"] = jsonObj.value("ID", "");
-                        jsonObj["Date"] = image_info.dateTime;
-                        jsonObj["confirm"] = confirm;
-                        
-                    } catch (const json::parse_error &e) {
-                        std::cerr  << "█ WHRIA: JSON Parsing Error: " << e.what()  <<std::endl;
-                        jsonObj["err"] = e.what();
-                        jsonObj["response"] = response;
-                        jsonObj["Filename"] = image;
-                        jsonObj["Date"] = image_info.dateTime;
-                        jsonObj["confirm"] = confirm;
-                    } catch (const std::exception &e) {
-                        std::cerr  << "█ WHRIA: Unknown Error: " << e.what()  <<std::endl;
-                        jsonObj["err"] = e.what();
-                        jsonObj["response"] = response;
-                        jsonObj["Filename"] = image;
-                        jsonObj["Date"] = image_info.dateTime;
-                        jsonObj["confirm"] = confirm;
-                    }
-
-
-
-                    // Filename 중복 여부 확인 후 업데이트 또는 추가
-                    bool found = false;
-                    for (auto &item : jsonArray) {
-                        if (item["Filename"] == jsonObj["Filename"]) {
-                            item = jsonObj; // 기존 항목 덮어쓰기
-                            found = true;
-                            break;
+                        try {
+                            jsonObj = json::parse(response);
+                            jsonObj["response"] = response;
+                            jsonObj["err"] = err;
+                            jsonObj["Filename"] = image;
+                            jsonObj["Name"] = jsonObj.value("Name", "");
+                            jsonObj["ID"] = jsonObj.value("ID", "");
+                            jsonObj["Date"] = image_info.dateTime;
+                            jsonObj["confirm"] = confirm;
+                            
+                        } catch (const json::parse_error &e) {
+                            std::cerr  << "█ WHRIA: JSON Parsing Error: " << e.what()  <<std::endl;
+                            jsonObj["err"] = e.what();
+                            jsonObj["response"] = response;
+                            jsonObj["Filename"] = image;
+                            jsonObj["Date"] = image_info.dateTime;
+                            jsonObj["confirm"] = confirm;
+                        } catch (const std::exception &e) {
+                            std::cerr  << "█ WHRIA: Unknown Error: " << e.what()  <<std::endl;
+                            jsonObj["err"] = e.what();
+                            jsonObj["response"] = response;
+                            jsonObj["Filename"] = image;
+                            jsonObj["Date"] = image_info.dateTime;
+                            jsonObj["confirm"] = confirm;
                         }
-                    }
-
-                    if (!found) {
-                        jsonArray.push_back(jsonObj); // 새로운 항목 추가
-                    }
-
-                    // 파일에 덮어쓰기 (새로운 JSON 추가된 전체 배열 저장)
-                    std::ofstream outFile(out_json_path);
-                    if (outFile.is_open()) {
-                        outFile << jsonArray.dump(4); // JSON 배열을 파일에 저장 (들여쓰기 4칸)
-                        outFile.close();
-                        std::cout  << "█ WHRIA: JSON appended to " << out_json_path  <<std::endl;
-                    } else {
-                        std::cerr  << "█ WHRIA: Failed to open " << out_json_path << " for writing"  <<std::endl;
-                    }
 
 
 
+                        // Filename 중복 여부 확인 후 업데이트 또는 추가
+                        bool found = false;
+                        for (auto &item : jsonArray) {
+                            if (item["Filename"] == jsonObj["Filename"]) {
+                                item = jsonObj; // 기존 항목 덮어쓰기
+                                found = true;
+                                break;
+                            }
+                        }
 
+                        if (!found) {
+                            jsonArray.push_back(jsonObj); // 새로운 항목 추가
+                        }
 
-
-
+                        // 파일에 덮어쓰기 (새로운 JSON 추가된 전체 배열 저장)
+                        std::ofstream outFile(out_json_path);
+                        if (outFile.is_open()) {
+                            outFile << jsonArray.dump(4); // JSON 배열을 파일에 저장 (들여쓰기 4칸)
+                            outFile.close();
+                            std::cout  << "█ WHRIA: JSON appended to " << out_json_path  << std::endl;
+                        } else {
+                            std::cerr  << "█ WHRIA: Failed to open " << out_json_path << " for writing"  <<std::endl;
+                        }
 
 
 
@@ -1251,7 +1246,9 @@ if (params.organize_photo)
         });
 
         // 3. JSON 파일 읽기
-        string out_json_path = (fs::path(image_folder) / fs::path(fs::path(image_folder).filename().string() + ".json")).string();
+        std::string out_json_path = (fs::path(image_folder) / fs::path(fs::path(image_folder).filename().string() + ".json")).string();
+        std::replace(out_json_path.begin(), out_json_path.end(), '\\', '/');
+
         ifstream inFile(out_json_path);
         if (inFile.is_open()) {
             try {
@@ -1271,6 +1268,80 @@ if (params.organize_photo)
                 cerr << "█ WHRIA: JSON file read error: " << e.what() << endl;
             }
             inFile.close();
+        }
+
+
+        // 시간 gap 에 맞춰서 Json 정보 추가
+
+
+        for (const auto& image : images) {
+
+            
+            string sourcePath = image.filePath;
+            string dateTime = image.dateTime;
+
+            if (jsonMap.find(sourcePath) != jsonMap.end()) {
+                lastJsonEntry = jsonMap[sourcePath];
+                lastJsonTime = lastJsonEntry["Date"].get<string>();
+
+                string id = lastJsonEntry.value("ID", "");
+                string name = lastJsonEntry.value("Name", "");
+            }
+
+            bool useLastJson = false;
+            if (!lastJsonTime.empty() && !dateTime.empty()) {
+                struct tm tm1 = {}, tm2 = {};
+                istringstream ss1(lastJsonTime), ss2(dateTime);
+                if ((ss1 >> get_time(&tm1, "%Y:%m:%d %H:%M:%S")) && (ss2 >> get_time(&tm2, "%Y:%m:%d %H:%M:%S"))) {
+                    time_t t1 = mktime(&tm1);
+                    time_t t2 = mktime(&tm2);
+                    if (t1 != -1 && t2 != -1) {
+                        long diff = abs(difftime(t2, t1));
+                        string id = lastJsonEntry.value("ID", "");
+                        string name = lastJsonEntry.value("Name", "");
+                        useLastJson = (diff <= params.organize_photo_timegap && (!id.empty() || !name.empty()) && lastJsonEntry.value("confirm", "")=="yes");  // params.organize_photo_timegap = 1200
+                    }
+                }
+            }
+
+            if (useLastJson && image.filePath!=lastJsonEntry.value("Filename", "")) {
+                json jsonObj;
+                jsonObj["Filename"] = image.filePath;
+                jsonObj["Name"] = lastJsonEntry.value("Name", "");
+                jsonObj["ID"] = lastJsonEntry.value("ID", "");
+
+
+                // Filename 중복 여부 확인 후 업데이트 또는 추가
+                bool found = false;
+                for (auto &item : jsonArray) {
+                    if (item["Filename"] == jsonObj["Filename"]) {
+                        item = jsonObj; // 기존 항목 덮어쓰기
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    jsonArray.push_back(jsonObj); // 새로운 항목 추가
+                }
+
+                std::string out_json_path=(std::filesystem::path(image_folder) / std::filesystem::path(std::filesystem::path(image_folder).filename().string()+".json")).string();
+                std::replace(out_json_path.begin(), out_json_path.end(), '\\', '/');
+                
+
+                // 파일에 덮어쓰기 (새로운 JSON 추가된 전체 배열 저장)
+                std::ofstream outFile(out_json_path);
+                if (outFile.is_open()) {
+                    outFile << jsonArray.dump(4); // JSON 배열을 파일에 저장 (들여쓰기 4칸)
+                    outFile.close();
+                    std::cout  << "█ WHRIA: JSON [" << image.filePath << "] appended to " << out_json_path  <<std::endl;
+                } else {
+                    std::cerr  << "█ WHRIA: Failed to open " << out_json_path << " for writing"  <<std::endl;
+                }
+
+
+
+            }
         }
 
         int fileIndex=0;
@@ -1379,6 +1450,7 @@ if (params.copy_for_test) {
         });
 
         std::string out_json_path = (fs::path(image_folder) / fs::path(fs::path(image_folder).filename().string() + ".json")).string();
+        std::replace(out_json_path.begin(), out_json_path.end(), '\\', '/');
         std::ifstream inFile(out_json_path);
         if (inFile.is_open()) {
             try {
@@ -1459,51 +1531,6 @@ if (params.copy_for_test) {
         }
     }
 }
-
-
-        /*
-        httplib::Server svr;
-
-        svr.Get("/process", [&](const httplib::Request &req, httplib::Response &res) {
-            if (!req.has_param("file")) {
-                //res.status = 400;
-                //res.set_content("Missing 'file' parameter", "text/plain");
-                res.set_content("1", "text/plain");
-                return;
-            }
-
-            std::string encoded_file = req.get_param_value("file");
-            std::string image = httplib::detail::decode_url(encoded_file, true);
-
-
-            auto *ctx_llava = llava_init_context(&params, model);
-            auto *image_embed = load_image(ctx_llava, &params, image);
-            if (!image_embed) {
-                LOG_ERR("Failed to load image %s\n", image.c_str());
-                res.status = 500;
-                res.set_content("Failed to load image", "text/plain");
-                return;
-            }
-
-            // Process the prompt
-            std::string response = process_prompt(ctx_llava, image_embed, &params, params.prompt);
-
-            llama_perf_context_print(ctx_llava->ctx_llama);
-            llava_image_embed_free(image_embed);
-            ctx_llava->model = NULL;
-            llava_free(ctx_llava);
-
-            res.set_content(response, "text/plain");
-        });
-
-        svr.Get("/quit", [&](const httplib::Request &, httplib::Response &) {
-            std::cerr  << "█ WHRIA: Server shutting down..." << std::endl;
-            std::exit(0);
-        });
-        
-        std::cerr  << "█ WHRIA: Server is running on port " << params.port << std::endl;
-        svr.listen("0.0.0.0", params.port);
-        */
 
 
 
