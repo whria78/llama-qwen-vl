@@ -196,3 +196,11 @@ Run the following command to compile the project:
 ```sh
 cmake.exe --build build --config Release -j 8
 ```
+## Build Output
+- EXE files: `..../build/bin/Release/llama-qwen2vl-cli.exe`
+
+## `clip.cpp` GPU Issue  
+
+GPU support for `clip.cpp` is currently disabled: [#10896](https://github.com/ggml-org/llama.cpp/pull/10896).  
+
+To enable it, **uncomment CUDA-related lines** in `examples/llava/clip.cpp` (**line 12+ and 1270+**), then rebuild.
