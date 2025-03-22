@@ -557,7 +557,7 @@ static struct llava_image_embed * load_image(llava_context * ctx_llava, common_p
 
         // fname을 base64로 변환 & resize
         std::cerr  << "█ " << fname  <<std::endl;
-        std::cerr  << "█ WHRIA: Start processing - " <<std::endl;
+        std::cerr  << "█ WHRIA: Start resizing the image" <<std::endl;
         std::string base64_image = image_to_base64(fname);
         std::cerr  << "█ WHRIA: Finished Base64 encoding"  <<std::endl;
         std::cerr  << "█ WHRIA: Running the VL model. At least 64GB of RAM is required. If a GPU of 1050 Ti or higher is available, the process takes approximately 2 to 5 minutes. If only a CPU is used, it takes about 5 to 10 minutes."  <<std::endl;
@@ -952,6 +952,22 @@ int main(int argc, char ** argv) {
                     cout << "█ WHRIA: Index Photo: " << result[1] << endl;
 
 
+                    // debug.csv에 결과 저장
+                    std::ofstream debugFile("debug.csv", std::ios::app); // 파일 추가 모드
+                    if (debugFile.is_open()) {
+                        // 파일 크기 확인 후 헤더 추가
+                        debugFile.seekp(0, std::ios::end);
+                        if (debugFile.tellp() == 0) {
+                            debugFile << "path,date,index_output\n";
+                        }
+
+                        debugFile << image << "," << date_ << "," << result[1] << "\n";
+                        debugFile.close();
+                    } else {
+                        std::cerr << "█ WHRIA: Error opening debug.csv" << std::endl;
+                    }
+
+
                     auto * ctx_llava = llava_init_context(&params, model);
 
                     auto * image_embed = load_image(ctx_llava, &params, image);
@@ -1009,12 +1025,16 @@ int main(int argc, char ** argv) {
                 });
 
                 int fileCount = 0;
+                int totalFiles = images.size();  // 총 이미지 개수
 
                 for (const auto& image_info : images) {
                     std::cerr << image_info.dateTime << " " << image_info.filePath << std::endl;
                     std::string image=image_info.filePath;
 
                     fileCount++;
+                    // 진행 상황을 퍼센트로 계산하여 출력
+                    float percentage = (static_cast<float>(fileCount) / totalFiles) * 100;
+                    std::cout << "█ WHRIA: Progress " << std::fixed << std::setprecision(1) << percentage << "% (" << fileCount << "/" << totalFiles << ")" << std::endl;
 
                     vector<float> result = run_multiple_onnx_models(image,model_paths);
                     
@@ -1025,6 +1045,24 @@ int main(int argc, char ** argv) {
                         cout << val << " | ";
                     }
                     cout << endl;
+
+
+                    // debug.csv에 결과 저장
+                    std::ofstream debugFile("debug.csv", std::ios::app); // 파일 추가 모드
+                    if (debugFile.is_open()) {
+                        // 파일 크기 확인 후 헤더 추가
+                        debugFile.seekp(0, std::ios::end);
+                        if (debugFile.tellp() == 0) {
+                            debugFile << "path,date,index_output\n";
+                        }
+
+                        debugFile << image << "," << image_info.dateTime << "," << result[1] << "\n";
+                        debugFile.close();
+                    } else {
+                        std::cerr << "█ WHRIA: Error opening debug.csv" << std::endl;
+                    }
+
+
 
                     if (result[1]<params.onnx_threshold)
                         cout  << "█ WHRIA: CNNs predict that it is a Clinical Photo. "  <<endl;
@@ -1240,6 +1278,8 @@ if (params.organize_photo)
             }
         }
 
+        cerr << "█ WHRIA: Total number of images: " << images.size() << endl;
+
         // 2. 날짜순 정렬
         sort(images.begin(), images.end(), [](const ImageInfo& a, const ImageInfo& b) {
             return a.dateTime < b.dateTime;
@@ -1273,7 +1313,7 @@ if (params.organize_photo)
 
         // 시간 gap 에 맞춰서 Json 정보 추가
 
-
+    
         for (const auto& image : images) {
 
             
@@ -1299,7 +1339,8 @@ if (params.organize_photo)
                         long diff = abs(difftime(t2, t1));
                         string id = lastJsonEntry.value("ID", "");
                         string name = lastJsonEntry.value("Name", "");
-                        useLastJson = (diff <= params.organize_photo_timegap && (!id.empty() || !name.empty()) && lastJsonEntry.value("confirm", "")=="yes");  // params.organize_photo_timegap = 1200
+                        //useLastJson = (diff <= params.organize_photo_timegap && (!id.empty() || !name.empty()) && lastJsonEntry.value("confirm", "")=="yes");  // params.organize_photo_timegap = 1200
+                        useLastJson = (diff <= params.organize_photo_timegap && (!id.empty() || !name.empty()));  // params.organize_photo_timegap = 1200
                     }
                 }
             }
@@ -1309,7 +1350,7 @@ if (params.organize_photo)
                 jsonObj["Filename"] = image.filePath;
                 jsonObj["Name"] = lastJsonEntry.value("Name", "");
                 jsonObj["ID"] = lastJsonEntry.value("ID", "");
-
+                jsonObj["confirm"] = lastJsonEntry.value("confirm", "");
 
                 // Filename 중복 여부 확인 후 업데이트 또는 추가
                 bool found = false;
