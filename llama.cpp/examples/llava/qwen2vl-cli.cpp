@@ -27,6 +27,9 @@
 #include <regex>
 
 #include "nlohmann/json.hpp"
+using json = nlohmann::json;
+#include <set>
+
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgcodecs.hpp>
@@ -47,6 +50,76 @@
 #include <cstdlib>
 
 #include <thread>
+
+
+// std::string filter를 쉼표로 구분하여 vector로 파싱하는 함수
+std::vector<std::string> parseFilter(const std::string& filter) {
+    std::vector<std::string> filterKeys;
+    std::stringstream ss(filter);
+    std::string key;
+    
+    while (std::getline(ss, key, ',')) {
+        filterKeys.push_back(key);
+    }
+    
+    return filterKeys;
+}
+
+// JSON 데이터를 CSV 파일로 저장하는 함수
+void saveToCSV(const std::string& filename, const std::map<std::string, json>& jsonMap, const std::string& filter) {
+    // filter에 맞는 키를 파싱하여 벡터로 저장
+    std::vector<std::string> filterKeys = parseFilter(filter);
+    
+    std::ofstream file(filename);
+
+    if (!file.is_open()) {
+        std::cerr << "█ WHRIA: Error: Could not open file for writing.\n";
+        return;
+    }
+
+    // 헤더 출력 (필터 기준으로)
+    for (const auto& key : filterKeys) {
+        file << key << ",";
+    }
+    file.seekp(-1, std::ios_base::end); // 마지막 ',' 제거
+    file << "\n";
+
+    // 데이터 행 출력
+    for (const auto& pair : jsonMap) {
+        const json& obj = pair.second;
+        for (const auto& key : filterKeys) {
+            if (obj.contains(key)) {
+                if (obj[key].is_array()) {
+                    // 배열이면 ";"로 구분하여 저장
+                    std::string joined_values;
+                    for (const auto& item : obj[key]) {
+                        joined_values += item.get<std::string>() + ";";
+                    }
+                    if (!joined_values.empty()) {
+                        joined_values.pop_back(); // 마지막 ';' 제거
+                    }
+                    file << joined_values;
+                } else if (obj[key].is_string()) {
+                    // 문자열인 경우 그대로 저장
+                    file << obj[key];
+                } else if (obj[key].is_boolean()) {
+                    // 불리언 값 처리
+                    file << (obj[key].get<bool>() ? "true" : "false");
+                } else {
+                    // 다른 타입의 값 처리
+                    file << obj[key];
+                }
+            }
+            file << ",";
+        }
+        file.seekp(-1, std::ios_base::end); // 마지막 ',' 제거
+        file << "\n";
+    }
+
+    file.close();
+    std::cout << "█ WHRIA: CSV file saved: " << filename << "\n";
+}
+
 
 std::string GetVCRedistVersion() {
     std::string command = "reg query \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\x64\" /v Version";
@@ -316,7 +389,6 @@ vector<float> run_multiple_onnx_models(const string& image_path, const vector<st
 }
 
 
-using json = nlohmann::json;
 json jsonArray;
 
 std::string trim(const std::string& str) {
@@ -1001,6 +1073,7 @@ int main(int argc, char ** argv) {
 
                         debugFile << image << "," << date_ << "," << result[1] << "\n";
                         debugFile.close();
+                        std::cerr << "█ WHRIA: Save debug.csv" << std::endl;
                     } else {
                         std::cerr << "█ WHRIA: Error opening debug.csv" << std::endl;
                     }
@@ -1144,15 +1217,15 @@ int main(int argc, char ** argv) {
                         if (skip_ || (result[1]<params.onnx_threshold)) continue; // done phots or clnicalphoto
 
 
+
+                        // MAIN
                         std::string response;
                         std::string confirm;
                         std::string err;
 
                         try 
                         {
-                        
                             auto * ctx_llava = llava_init_context(&params, model);
-
                             auto * image_embed = load_image(ctx_llava, &params, image);
                             if (!image_embed) {
                                 LOG_ERR("%s: failed to load image %s. Terminating\n\n", __func__, image.c_str());
@@ -1206,10 +1279,7 @@ int main(int argc, char ** argv) {
                             jsonObj["ID"] = jsonObj.value("ID", "");
                             jsonObj["Date"] = image_info.dateTime;
                             jsonObj["confirm"] = confirm;
-
-                            for (const auto& meta_ : meta_list) {
-                            if (jsonObj.contains(meta_)) jsonObj[meta_] = jsonObj.value(meta_, "");
-                            }    
+                            jsonObj["is_index"] = true;
 
                             if (params.id_pattern!="")
                             {
@@ -1235,6 +1305,7 @@ int main(int argc, char ** argv) {
                             jsonObj["Filename"] = image;
                             jsonObj["Date"] = image_info.dateTime;
                             jsonObj["confirm"] = confirm;
+                            jsonObj["is_index"] = true;
                         } catch (const std::exception &e) {
                             std::cerr  << "█ WHRIA: Unknown Error: " << e.what()  <<std::endl;
                             jsonObj["err"] = e.what();
@@ -1242,9 +1313,102 @@ int main(int argc, char ** argv) {
                             jsonObj["Filename"] = image;
                             jsonObj["Date"] = image_info.dateTime;
                             jsonObj["confirm"] = confirm;
+                            jsonObj["is_index"] = true;
                         }
 
 
+
+                        // CUSTOM
+                        if (params.custom_prompt!="" )
+                        {
+                            response="";
+                            confirm="";
+                            err="";
+
+                            try 
+                            {
+                                auto * ctx_llava = llava_init_context(&params, model);
+                                auto * image_embed = load_image(ctx_llava, &params, image);
+
+                                if (params.custom_confirm_prompt!="")
+                                {
+                                    if (!image_embed) {
+                                        LOG_ERR("%s: failed to load image %s. Terminating\n\n", __func__, image.c_str());
+                                        return 1;
+                                    }
+
+                                    confirm = process_prompt(ctx_llava, image_embed, &params, params.custom_confirm_prompt);
+                                    
+                                    // response를 소문자로 변환
+                                    std::transform(confirm.begin(), confirm.end(), confirm.begin(), ::tolower);
+                                    // "yes"가 포함되어 있으면 bConfirm을 true로 설정
+                                    if (confirm.find("yes") != std::string::npos) confirm="yes"; else confirm="";
+
+                                    std::cout << std::endl;
+
+                                    std::cout  << "█ WHRIA: "<< params.custom_confirm_prompt << " : " << confirm   << std::endl;
+                                    
+                                    llama_perf_context_print(ctx_llava->ctx_llama);
+
+                                    llava_image_embed_free(image_embed);
+                                    ctx_llava->model = NULL;
+                                    llava_free(ctx_llava);
+                                    
+                                }
+                                else
+                                    confirm="yes";
+
+                                if (confirm=="yes")
+                                {
+
+                                    
+                                    ctx_llava = llava_init_context(&params, model);
+                                    image_embed = load_image(ctx_llava, &params, image);
+                                    
+                                    // process the prompt
+                                    response = process_prompt(ctx_llava, image_embed, &params, params.custom_prompt);
+
+                                    llama_perf_context_print(ctx_llava->ctx_llama);
+                                    llava_image_embed_free(image_embed);
+                                    ctx_llava->model = NULL;
+                                    llava_free(ctx_llava);
+
+                                    response=extract_json(response);
+                                    std::cout  << "█ WHRIA: Extracted JSON:\n" << response  <<std::endl;
+
+                                    json jsonObj_temp; // 개별 JSON 객체
+                                    try {
+                                        for (const auto& meta_ : meta_list) {
+                                            std::cout  << "█ WHRIA: Custom metadata: " << meta_  <<std::endl;
+                                            jsonObj_temp = json::parse(response);
+                                            if (jsonObj_temp.contains(meta_)) 
+                                            {
+                                                if (jsonObj_temp[meta_].is_array()) {
+                                                    jsonObj[meta_] = jsonObj_temp[meta_];
+                                                }
+                                                else if (jsonObj_temp[meta_].is_string()) {
+                                                    json array = json::array();
+                                                    array.push_back(jsonObj_temp[meta_]);
+                                                    jsonObj[meta_] = array;
+                                                }
+                                            }
+                                        }    
+                                    } catch (const json::parse_error &e) {
+                                        std::cerr  << "█ WHRIA: JSON Parsing Error: " << e.what()  <<std::endl;
+                                    } catch (const std::exception &e) {
+                                        std::cerr  << "█ WHRIA: Unknown Error: " << e.what()  <<std::endl;
+                                    }
+                                   
+                                    
+                                }
+                                
+
+                            } catch (const std::exception &e) {
+                                    cerr << e.what() << endl;
+                                    err=e.what();
+                            }
+
+                        }
 
                         // Filename 중복 여부 확인 후 업데이트 또는 추가
                         bool found = false;
@@ -1299,8 +1463,9 @@ if (params.organize_photo)
 
         std::vector<ImageInfo> images;
         map<string, json> jsonMap;
+        json lastIndexJsonEntry;
+        string lastIndexJsonTime;
         json lastJsonEntry;
-        string lastJsonTime;
 
         int iDone=0;
         int iNotDone=0;
@@ -1380,38 +1545,68 @@ if (params.organize_photo)
             string dateTime = image.dateTime;
 
             if (jsonMap.find(sourcePath) != jsonMap.end()) {
-                lastJsonEntry = jsonMap[sourcePath];
-                lastJsonTime = lastJsonEntry["Date"].get<string>();
+                lastIndexJsonEntry = jsonMap[sourcePath]; // ALL index
+                lastIndexJsonTime = lastIndexJsonEntry["Date"].get<string>();
 
-                string id = lastJsonEntry.value("ID", "");
-                string name = lastJsonEntry.value("Name", "");
+                for (const auto& meta_ : meta_list) {
+                    if (lastJsonEntry.contains(meta_))
+                        lastIndexJsonEntry[meta_]=lastJsonEntry[meta_];
+
+                    // update jsonArray
+                    for (auto &item : jsonArray) {
+                        if (item["Filename"] == sourcePath) {
+                            if (lastJsonEntry.contains(meta_))
+                                item[meta_]=lastJsonEntry[meta_];
+                            break;
+                        }
+                    }
+                }
+
+                string id = lastIndexJsonEntry.value("ID", "");
+                string name = lastIndexJsonEntry.value("Name", "");
+
             }
 
+            /*
+            if (lastJsonEntry.contains("is_index"))
+            {
+                if (lastJsonEntry["is_index"]==true)
+                {
+                    for (const auto& meta_ : meta_list) {
+                        if (lastJsonEntry.contains(meta_))
+                            lastIndexJsonEntry[meta_]=lastJsonEntry[meta_];
+                    }
+                }
+            }
+            */
+
+            
             bool useLastJson = false;
-            if (!lastJsonTime.empty() && !dateTime.empty()) {
+            if (!lastIndexJsonTime.empty() && !dateTime.empty()) {
                 struct tm tm1 = {}, tm2 = {};
-                istringstream ss1(lastJsonTime), ss2(dateTime);
+                istringstream ss1(lastIndexJsonTime), ss2(dateTime);
                 if ((ss1 >> get_time(&tm1, "%Y:%m:%d %H:%M:%S")) && (ss2 >> get_time(&tm2, "%Y:%m:%d %H:%M:%S"))) {
                     time_t t1 = mktime(&tm1);
                     time_t t2 = mktime(&tm2);
                     if (t1 != -1 && t2 != -1) {
                         long diff = abs(difftime(t2, t1));
-                        string id = lastJsonEntry.value("ID", "");
-                        string name = lastJsonEntry.value("Name", "");
-                        //useLastJson = (diff <= params.organize_photo_timegap && (!id.empty() || !name.empty()) && lastJsonEntry.value("confirm", "")=="yes");  // params.organize_photo_timegap = 1200
+                        string id = lastIndexJsonEntry.value("ID", "");
+                        string name = lastIndexJsonEntry.value("Name", "");
+                        //useLastJson = (diff <= params.organize_photo_timegap && (!id.empty() || !name.empty()) && lastIndexJsonEntry.value("confirm", "")=="yes");  // params.organize_photo_timegap = 1200
                         useLastJson = (diff <= params.organize_photo_timegap && (!id.empty() || !name.empty()));  // params.organize_photo_timegap = 1200
                     }
                 }
             }
 
-            if (useLastJson && image.filePath!=lastJsonEntry.value("Filename", "")) {
+            if (useLastJson && image.filePath!=lastIndexJsonEntry.value("Filename", "")) {
                 json jsonObj;
                 jsonObj["Filename"] = image.filePath;
-                jsonObj["Name"] = lastJsonEntry.value("Name", "");
-                jsonObj["ID"] = lastJsonEntry.value("ID", "");
-                jsonObj["confirm"] = lastJsonEntry.value("confirm", "");
+                jsonObj["Name"] = lastIndexJsonEntry.value("Name", "");
+                jsonObj["ID"] = lastIndexJsonEntry.value("ID", "");
+                jsonObj["confirm"] = lastIndexJsonEntry.value("confirm", "");
                 for (const auto& meta_ : meta_list) {
-                if (lastJsonEntry.contains(meta_)) jsonObj[meta_] = lastJsonEntry.value(meta_, "");
+                    if (lastIndexJsonEntry.contains(meta_)) 
+                        jsonObj[meta_] = lastIndexJsonEntry[meta_];
                 }    
 
                 // Filename 중복 여부 확인 후 업데이트 또는 추가
@@ -1445,7 +1640,98 @@ if (params.organize_photo)
 
 
             }
+
+
+            // STACK index metadata
+
+            json lastJsonEntry_temp = jsonMap[sourcePath];
+            if (jsonMap[sourcePath].contains("is_index"))
+            {
+                if (jsonMap[sourcePath]["is_index"]==true)
+                {
+                    if (lastJsonEntry.contains("is_index"))
+                    {
+                        if (lastJsonEntry["is_index"]==true)
+                        {
+                            for (const auto& meta_ : meta_list) {
+                                if (lastJsonEntry.contains(meta_))
+                                    lastJsonEntry_temp[meta_]=lastJsonEntry[meta_];
+                            }
+                        }
+                    }
+                }
+            }
+            lastJsonEntry=lastJsonEntry_temp;
+            
         }
+
+
+        std::vector<std::string> lastIndexs;
+        string last_path_="";
+        
+        for (const auto& image : images) {
+            string path_ = image.filePath;
+            //std::cerr  << path_ <<std::endl;
+
+            if (last_path_!="")
+            {                
+                if (jsonMap[path_]["is_index"]==true)
+                {
+                    lastIndexs.push_back(path_);
+                    //std::cerr  << "█ lastIndexs.push_back(path_);" << path_ <<std::endl;
+                }
+                else
+                {
+                    if (jsonMap[last_path_]["is_index"]==true)
+                    {
+                        for (const auto& index_ : lastIndexs)
+                        {
+                            if (index_!=last_path_)
+                            {
+                                //jsonMap[index_]["ID"]=jsonMap[last_path_]["ID"];
+                                //jsonMap[index_]["Name"]=jsonMap[last_path_]["Name"];
+                                for (auto &item : jsonArray) {
+                                    if (item["Filename"] == index_) {
+                                        item["ID"]=jsonMap[last_path_]["ID"]; // 기존 항목 덮어쓰기
+                                        item["Name"]=jsonMap[last_path_]["Name"]; // 기존 항목 덮어쓰기
+                                        item["confirm"]=jsonMap[last_path_]["confirm"]; // 기존 항목 덮어쓰기
+                                        break;
+                                    }
+                                }
+
+                                //std::cerr  << index_ << last_path_ <<std::endl;
+
+                            }
+                        }
+                        lastIndexs.clear();
+                    }                    
+                }
+            }
+            else
+            {
+                if (jsonMap[path_]["is_index"]==true)
+                {
+                    lastIndexs.push_back(path_);
+                    //std::cerr  << "█ lastIndexs.push_back(path_);" << path_ <<std::endl;
+                }
+            }
+            
+            last_path_=path_;
+        }
+
+
+        // 파일에 덮어쓰기 (새로운 JSON 추가된 전체 배열 저장)
+        std::ofstream outFile(out_json_path);
+        if (outFile.is_open()) {
+            outFile << jsonArray.dump(4); // JSON 배열을 파일에 저장 (들여쓰기 4칸)
+            outFile.close();
+            std::cout  << "█ WHRIA: Save to " << out_json_path  <<std::endl;
+        } else {
+            std::cerr  << "█ WHRIA: Failed to open " << out_json_path << " for writing"  <<std::endl;
+        }
+
+        
+        saveToCSV("result_csv.csv",jsonMap,"ID,Name,"+params.json_meta_list);
 
         int fileIndex=0;
         // 4. 파일 복사 및 이름 변경 처리
@@ -1456,36 +1742,36 @@ if (params.organize_photo)
             string newFilename;
 
             if (jsonMap.find(sourcePath) != jsonMap.end()) {
-                lastJsonEntry = jsonMap[sourcePath];
-                lastJsonTime = lastJsonEntry["Date"].get<string>();
+                lastIndexJsonEntry = jsonMap[sourcePath];
+                lastIndexJsonTime = lastIndexJsonEntry["Date"].get<string>();
 
-                string id = lastJsonEntry.value("ID", "");
-                string name = lastJsonEntry.value("Name", "");
+                string id = lastIndexJsonEntry.value("ID", "");
+                string name = lastIndexJsonEntry.value("Name", "");
                 if (!id.empty() || !name.empty()) fileIndex=0;
             }
 
             bool useLastJson = false;
-            if (!lastJsonTime.empty() && !dateTime.empty()) {
+            if (!lastIndexJsonTime.empty() && !dateTime.empty()) {
                 struct tm tm1 = {}, tm2 = {};
-                istringstream ss1(lastJsonTime), ss2(dateTime);
+                istringstream ss1(lastIndexJsonTime), ss2(dateTime);
                 if ((ss1 >> get_time(&tm1, "%Y:%m:%d %H:%M:%S")) && (ss2 >> get_time(&tm2, "%Y:%m:%d %H:%M:%S"))) {
                     time_t t1 = mktime(&tm1);
                     time_t t2 = mktime(&tm2);
                     if (t1 != -1 && t2 != -1) {
                         long diff = abs(difftime(t2, t1));
-                        string id = lastJsonEntry.value("ID", "");
-                        string name = lastJsonEntry.value("Name", "");
-                        useLastJson = (diff <= params.organize_photo_timegap && (!id.empty() || !name.empty()) && lastJsonEntry.value("confirm", "")=="yes");  // params.organize_photo_timegap = 1200
+                        string id = lastIndexJsonEntry.value("ID", "");
+                        string name = lastIndexJsonEntry.value("Name", "");
+                        useLastJson = (diff <= params.organize_photo_timegap && (!id.empty() || !name.empty()) && lastIndexJsonEntry.value("confirm", "")=="yes");  // params.organize_photo_timegap = 1200
                     }
                 }
             }
 
             if (useLastJson) {
-                string year = lastJsonTime.substr(0, 4);
-                string month = lastJsonTime.substr(5, 2);
+                string year = lastIndexJsonTime.substr(0, 4);
+                string month = lastIndexJsonTime.substr(5, 2);
                 targetFolder = (fs::current_path() / "RESULT" / year / (year + "-" + month)).string();
-                string id = lastJsonEntry.value("ID", "");
-                string name = lastJsonEntry.value("Name", "");
+                string id = lastIndexJsonEntry.value("ID", "");
+                string name = lastIndexJsonEntry.value("Name", "");
                 string extension = fs::path(sourcePath).extension().string();
 
                 fileIndex++;
@@ -1576,8 +1862,8 @@ if (params.copy_for_test) {
         }
 
         int fileIndex = 0;
-        json lastJsonEntry = {};
-        std::string lastJsonTime;
+        json lastIndexJsonEntry = {};
+        std::string lastIndexJsonTime;
         
         for (const auto &image : images) {
             std::string sourcePath = image.filePath;
@@ -1594,24 +1880,24 @@ if (params.copy_for_test) {
                 std::string id = entry.value("ID", "");
                 std::string name = entry.value("Name", "");
                 if (!id.empty() || !name.empty()) {
-                    lastJsonEntry = entry;
-                    lastJsonTime = entry.value("Date", "");
+                    lastIndexJsonEntry = entry;
+                    lastIndexJsonTime = entry.value("Date", "");
                 }
             }
 
-            if (!lastJsonTime.empty()) {
+            if (!lastIndexJsonTime.empty()) {
                 struct tm tm1 = {}, tm2 = {};
-                std::istringstream ss1(lastJsonTime), ss2(dateTime);
+                std::istringstream ss1(lastIndexJsonTime), ss2(dateTime);
                 if (!(ss1 >> std::get_time(&tm1, "%Y:%m:%d %H:%M:%S")) || !(ss2 >> std::get_time(&tm2, "%Y:%m:%d %H:%M:%S"))) {
-                    std::cerr << "█ WHRIA: Error parsing time: " << lastJsonTime << " or " << dateTime << std::endl;
+                    std::cerr << "█ WHRIA: Error parsing time: " << lastIndexJsonTime << " or " << dateTime << std::endl;
                 } else {
                     time_t t1 = mktime(&tm1);
                     time_t t2 = mktime(&tm2);
                     if (t1 != -1 && t2 != -1 && std::abs(difftime(t2, t1)) <= params.organize_photo_timegap) {
                         std::string extension = fs::path(sourcePath).extension().string();
-                        newFilename = lastJsonEntry.value("ID", "") + 
-                                      (lastJsonEntry.value("ID", "").empty() || lastJsonEntry.value("Name", "").empty() ? "" : "_") + 
-                                      lastJsonEntry.value("Name", "") + 
+                        newFilename = lastIndexJsonEntry.value("ID", "") + 
+                                      (lastIndexJsonEntry.value("ID", "").empty() || lastIndexJsonEntry.value("Name", "").empty() ? "" : "_") + 
+                                      lastIndexJsonEntry.value("Name", "") + 
                                       extension;
                     } else {
                         newFilename = filenameOnly;
