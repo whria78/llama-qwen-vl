@@ -45,6 +45,9 @@
 #include <array>
 #include <string>
 #include <cstdlib>
+
+#include <thread>
+
 std::string GetVCRedistVersion() {
     std::string command = "reg query \"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\x64\" /v Version";
     std::array<char, 128> buffer;
@@ -315,6 +318,25 @@ vector<float> run_multiple_onnx_models(const string& image_path, const vector<st
 
 using json = nlohmann::json;
 json jsonArray;
+
+std::string trim(const std::string& str) {
+    auto start = str.find_first_not_of(" \t");
+    auto end = str.find_last_not_of(" \t");
+    return (start == std::string::npos) ? "" : str.substr(start, end - start + 1);
+}
+
+std::vector<std::string> split(const std::string& str, char delimiter) {
+    std::vector<std::string> result;
+    std::stringstream ss(str);
+    std::string item;
+    
+    while (std::getline(ss, item, delimiter)) {
+        std::string trim_=trim(item);
+        if (trim_!="") result.push_back(trim_); // Trim 후 push_back
+    }
+    
+    return result;
+}
 
 std::string extract_json(const std::string& response) {
     // 개행 문자를 포함하여 { ... } 패턴을 찾음
@@ -805,7 +827,12 @@ static void debug_test_mrope_2d() {
     ggml_gallocr_alloc_graph(allocr, gf);
 
     // 9. Run the computation
-    int n_threads = 1; // Optional: number of threads to perform some operations with multi-threading
+    //int n_threads = 1; // Optional: number of threads to perform some operations with multi-threading
+    int n_threads = std::thread::hardware_concurrency(); // 사용 가능한 최대 스레드 수 가져오기
+    if (n_threads <= 0) {
+        n_threads = 1; 
+    }
+
     if (ggml_backend_is_cpu(backend)) {
         ggml_backend_cpu_set_n_threads(backend, n_threads);
     }
@@ -880,6 +907,17 @@ int main(int argc, char ** argv) {
     if (!common_params_parse(argc, argv, params, LLAMA_EXAMPLE_LLAVA, print_usage)) {
         return 1;
     }
+
+    try {
+        std::regex idRegex(params.id_pattern);
+        }
+    catch (const std::regex_error& e) {
+        // If regex pattern is invalid, continue without checking the "ID"
+        std::cerr << "█ WHRIA: Invalid regex pattern: " << e.what() << std::endl;
+        return 1;
+    }                            
+    
+    std::vector<std::string> meta_list = split(params.json_meta_list, ',');
 
     common_init();
 
@@ -1121,7 +1159,7 @@ int main(int argc, char ** argv) {
                                 return 1;
                             }
 
-                            confirm = process_prompt(ctx_llava, image_embed, &params, "Does it include patient's name and registration number? Response must be YES or NO.");
+                            confirm = process_prompt(ctx_llava, image_embed, &params, params.index_confirm_prompt);
                             
                             // response를 소문자로 변환
                             std::transform(confirm.begin(), confirm.end(), confirm.begin(), ::tolower);
@@ -1130,7 +1168,7 @@ int main(int argc, char ** argv) {
 
                             std::cout << std::endl;
 
-                            std::cout  << "█ WHRIA: Does it include patient's name and registration number? Response must be YES or NO. : " << confirm   << std::endl;
+                            std::cout  << "█ WHRIA: "<< params.index_confirm_prompt << " : " << confirm   << std::endl;
 
                             llama_perf_context_print(ctx_llava->ctx_llama);
 
@@ -1168,6 +1206,27 @@ int main(int argc, char ** argv) {
                             jsonObj["ID"] = jsonObj.value("ID", "");
                             jsonObj["Date"] = image_info.dateTime;
                             jsonObj["confirm"] = confirm;
+
+                            for (const auto& meta_ : meta_list) {
+                            if (jsonObj.contains(meta_)) jsonObj[meta_] = jsonObj.value(meta_, "");
+                            }    
+
+                            if (params.id_pattern!="")
+                            {
+                                // Validate the ID pattern if valid
+                                try {
+                                    std::regex idRegex(params.id_pattern);
+                                    if (jsonObj.contains("ID")) {
+                                        std::string idValue = jsonObj["ID"];
+                                        if (!std::regex_match(idValue, idRegex)) {
+                                            jsonObj["ID"] = ""; // Set to empty if not matching
+                                        }
+                                    }
+                                } catch (const std::regex_error& e) {
+                                    // If regex pattern is invalid, continue without checking the "ID"
+                                    std::cerr << "█ WHRIA: Invalid regex pattern: " << e.what() << std::endl;
+                                }                            
+                            }
                             
                         } catch (const json::parse_error &e) {
                             std::cerr  << "█ WHRIA: JSON Parsing Error: " << e.what()  <<std::endl;
@@ -1351,6 +1410,9 @@ if (params.organize_photo)
                 jsonObj["Name"] = lastJsonEntry.value("Name", "");
                 jsonObj["ID"] = lastJsonEntry.value("ID", "");
                 jsonObj["confirm"] = lastJsonEntry.value("confirm", "");
+                for (const auto& meta_ : meta_list) {
+                if (lastJsonEntry.contains(meta_)) jsonObj[meta_] = lastJsonEntry.value(meta_, "");
+                }    
 
                 // Filename 중복 여부 확인 후 업데이트 또는 추가
                 bool found = false;
