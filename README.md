@@ -115,8 +115,8 @@ The json result is as following:
 ```
 
 
-Example images:  
-🔗 [Sample Images](https://github.com/whria78/llama-qwen-vl/tree/main/samples_advanced)
+- Please check using the example images:  
+🔗 [Sample Images & JSON result](https://github.com/whria78/llama-qwen-vl/tree/main/samples_advanced)
 
 
 - You can also extract additional metadata such as **age, sex, and body site**, although the accuracy may be slightly lower:
