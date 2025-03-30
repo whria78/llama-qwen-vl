@@ -65,6 +65,24 @@ std::vector<std::string> parseFilter(const std::string& filter) {
     return filterKeys;
 }
 
+void saveLog(const std::string& filename,const std::string& prompt,const std::string& response)
+{
+    std::ofstream logFile("log.txt", std::ios::app); // 파일 추가 모드
+    if (logFile.is_open()) {
+        // 파일 크기 확인 후 헤더 추가
+        logFile.seekp(0, std::ios::end);
+
+        logFile << filename << "\n";
+        logFile << prompt << "\n";
+        logFile << response << "\n\n";
+
+        logFile.close();
+        std::cerr << "█ WHRIA: Save log.txt" << std::endl;
+    } else {
+        std::cerr << "█ WHRIA: Error opening log.txt" << std::endl;
+    }
+    
+}
 // JSON 데이터를 CSV 파일로 저장하는 함수
 void saveToCSV(const std::string& filename, const std::map<std::string, json>& jsonMap, const std::string& filter) {
     // filter에 맞는 키를 파싱하여 벡터로 저장
@@ -274,10 +292,49 @@ vector<float> softmax(const vector<float>& input) {
     return output;
 }
 
-Mat preprocess_image(const string& image_path) {
-    Mat img = imread(image_path);
+// EXIF Orientation을 적용하는 함수 (이미지를 미리 읽어놓은 경우)
+Mat applyEXIFOrientation(const string &imagePath, const Mat &img) {
     if (img.empty()) {
-        cerr << "Error: Could not read the image!" << endl;
+        cerr << "█ Error: Input image is empty!" << endl;
+        return Mat();  // 빈 Mat 반환
+    }
+
+    // EXIF 데이터 읽기
+    ifstream file(imagePath, ios::binary);
+    TinyEXIF::EXIFInfo exif(file);
+
+    if (exif.Fields) {  // EXIF 데이터가 있는 경우
+        int orientation = exif.Orientation;
+        // cout << "EXIF Orientation: " << orientation << " for " << imagePath << endl;
+
+        Mat rotated = img.clone();
+        switch (orientation) {
+            case 6:  // 90도 시계 방향 (Clockwise)
+                rotate(img, rotated, ROTATE_90_CLOCKWISE);
+                break;
+            case 3:  // 180도 회전
+                rotate(img, rotated, ROTATE_180);
+                break;
+            case 8:  // 270도 시계 방향 (Counterclockwise)
+                rotate(img, rotated, ROTATE_90_COUNTERCLOCKWISE);
+                break;
+            default: // 회전 필요 없음
+                return img;
+        }
+        return rotated;  // 회전된 이미지 반환
+    } else {
+        cout << "█ No EXIF data found for: " << imagePath << endl;
+    }
+
+    return img;  // EXIF 데이터가 없으면 원본 이미지 반환
+}
+
+Mat preprocess_image(const string& image_path) {
+    Mat img_org = imread(image_path);
+    Mat img=applyEXIFOrientation(image_path,img_org);
+    
+    if (img.empty()) {
+        cerr << "█ Error: Could not read the image!" << endl;
         return {};
     }
 
@@ -649,7 +706,9 @@ static struct llava_image_embed * load_image(llava_context * ctx_llava, common_p
         }
         */
 
-        // fname을 base64로 변환 & resize
+        // fname을 base64로 변환 & resize & rotate
+        std::cerr  << std::endl;
+        std::cerr  << std::endl;
         std::cerr  << "█ " << fname  <<std::endl;
         std::cerr  << "█ WHRIA: Start resizing the image" <<std::endl;
         std::string base64_image = image_to_base64(fname);
@@ -1089,6 +1148,8 @@ int main(int argc, char ** argv) {
 
                     // process the prompt
                     std::string response = process_prompt(ctx_llava, image_embed, &params, params.prompt);
+                    saveLog(image,params.prompt, response);
+
                     response=extract_json(response);
                     std::cout  << "█ WHRIA: Extracted JSON:\n" << response  <<std::endl;
 
@@ -1233,6 +1294,7 @@ int main(int argc, char ** argv) {
                             }
 
                             confirm = process_prompt(ctx_llava, image_embed, &params, params.index_confirm_prompt);
+                            saveLog(image,params.index_confirm_prompt, confirm);
                             
                             // response를 소문자로 변환
                             std::transform(confirm.begin(), confirm.end(), confirm.begin(), ::tolower);
@@ -1254,6 +1316,7 @@ int main(int argc, char ** argv) {
                             
                             // process the prompt
                             response = process_prompt(ctx_llava, image_embed, &params, params.prompt);
+                            saveLog(image,params.prompt, response);
 
                             llama_perf_context_print(ctx_llava->ctx_llama);
                             llava_image_embed_free(image_embed);
@@ -1338,6 +1401,7 @@ int main(int argc, char ** argv) {
                                     }
 
                                     confirm = process_prompt(ctx_llava, image_embed, &params, params.custom_confirm_prompt);
+                                    saveLog(image,params.custom_confirm_prompt, confirm);
                                     
                                     // response를 소문자로 변환
                                     std::transform(confirm.begin(), confirm.end(), confirm.begin(), ::tolower);
@@ -1367,6 +1431,7 @@ int main(int argc, char ** argv) {
                                     
                                     // process the prompt
                                     response = process_prompt(ctx_llava, image_embed, &params, params.custom_prompt);
+                                    saveLog(image,params.custom_prompt, response);
 
                                     llama_perf_context_print(ctx_llava->ctx_llama);
                                     llava_image_embed_free(image_embed);
@@ -1537,6 +1602,7 @@ if (params.organize_photo)
 
         // 시간 gap 에 맞춰서 Json 정보 추가
 
+        std::cerr  << "█ Add JSON info to clinical images" << std::endl;
     
         for (const auto& image : images) {
 
@@ -1643,26 +1709,78 @@ if (params.organize_photo)
 
 
             // STACK index metadata
-
-            json lastJsonEntry_temp = jsonMap[sourcePath];
-            if (jsonMap[sourcePath].contains("is_index"))
+            
+            try 
             {
-                if (jsonMap[sourcePath]["is_index"]==true)
+
+                json lastJsonEntry_temp = jsonMap[sourcePath];
+                if (jsonMap[sourcePath].contains("is_index"))
                 {
-                    if (lastJsonEntry.contains("is_index"))
+                    if (jsonMap[sourcePath]["is_index"]==true)
                     {
-                        if (lastJsonEntry["is_index"]==true)
+                        if (lastJsonEntry.contains("is_index"))
                         {
-                            for (const auto& meta_ : meta_list) {
-                                if (lastJsonEntry.contains(meta_))
-                                    lastJsonEntry_temp[meta_]=lastJsonEntry[meta_];
+                            if (lastJsonEntry["is_index"]==true)
+                            {
+                                for (const auto& meta_ : meta_list) 
+                                {
+                                    if (lastJsonEntry.contains(meta_))
+                                    {
+                                        /*
+                                        if (lastJsonEntry_temp.contains(meta_))
+                                        {
+                                            if (lastJsonEntry_temp[meta_].is_array() && lastJsonEntry[meta_].is_array())
+                                                lastJsonEntry_temp[meta_]+=lastJsonEntry[meta_];
+                                        }
+                                        else
+                                            lastJsonEntry_temp[meta_]=lastJsonEntry[meta_];
+                                        */
+
+                                        if (lastJsonEntry[meta_].is_array())
+                                        {
+                                            if (!lastJsonEntry[meta_].empty()) 
+                                            {
+                                                // REPLACE
+                                                // lastJsonEntry_temp[meta_] = lastJsonEntry[meta_];
+                                                
+                                                if (lastJsonEntry_temp.contains(meta_))
+                                                {
+                                                    // ADD if 1st Dx is equal
+                                                    if (lastJsonEntry_temp[meta_][0] == lastJsonEntry[meta_][0])
+                                                    {
+                                                        for (const auto& m_ : lastJsonEntry[meta_])
+                                                        {
+                                                            if (std::find(lastJsonEntry_temp[meta_].begin(),lastJsonEntry_temp[meta_].end(),m_)==lastJsonEntry_temp[meta_].end())
+                                                            lastJsonEntry_temp[meta_].push_back(m_);
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                    lastJsonEntry_temp[meta_]=lastJsonEntry[meta_];
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (lastJsonEntry[meta_].is_string())
+                                            {
+                                                json tmpArray = json::array();
+                                                tmpArray.push_back(lastJsonEntry[meta_]);
+                                                lastJsonEntry_temp[meta_] = tmpArray;
+                                            }
+                                        }
+                                    }                            
+                                }
                             }
                         }
                     }
                 }
+                
+                
+                lastJsonEntry=lastJsonEntry_temp;
             }
-            lastJsonEntry=lastJsonEntry_temp;
-            
+            catch (const exception &e) {
+                cerr << "█ WHRIA: Failed to stack json: " << e.what() << endl;
+            }
         }
 
 
@@ -1671,7 +1789,7 @@ if (params.organize_photo)
         
         for (const auto& image : images) {
             string path_ = image.filePath;
-            //std::cerr  << path_ <<std::endl;
+            //std::cerr  << "||" << path_ <<std::endl;
 
             if (last_path_!="")
             {                
@@ -1704,7 +1822,7 @@ if (params.organize_photo)
                             }
                         }
                         lastIndexs.clear();
-                    }                    
+                    }
                 }
             }
             else

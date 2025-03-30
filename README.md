@@ -123,19 +123,19 @@ The json result is as following:
             "Melanocytic Nevus"
         ],
         "Filename": "[ROOT_PATH]/20250328_093839.jpg",
-        "ID": "123456789",
+        "ID": "Not provided",
         "Name": "John Doe",
         "confirm": "",
         "err": "",
         "is_index": true,
-        "response": "{\n  \"Name\": \"John Doe\",\n  \"ID\": \"123456789\"\n}"
+        "response": "{\n  \"Name\": \"John Doe\",\n  \"ID\": \"Not provided\"\n}"
     },
     {
         "Date": "2025:03:28 09:40:08",
         "Filename": "[ROOT_PATH]/20250328_094008.jpg",
-        "ID": "1985",
+        "ID": "287282",
         "Name": "John Doe",
-        "confirm": "",
+        "confirm": "yes",
         "err": "",
         "is_index": true,
         "response": "{\n  \"Name\": \"John Doe\",\n  \"ID\": \"1985\"\n}"
@@ -147,9 +147,9 @@ The json result is as following:
             "Melanocytic Nevus"
         ],
         "Filename": "[ROOT_PATH]/20250328_094018.jpg",
-        "ID": "123456",
+        "ID": "287282",
         "Name": "John Doe",
-        "confirm": "",
+        "confirm": "yes",
         "err": "",
         "is_index": true,
         "response": "{\n  \"Name\": \"John Doe\",\n  \"ID\": \"123456\"\n}"
@@ -157,8 +157,8 @@ The json result is as following:
     {
         "Date": "2025:03:28 09:43:41",
         "Dx": [
-            "Melanocytic nevus",
-            "Dysplastic nevus"
+            "Suspected Dysplastic Nevus",
+            "Melanocytic Nevus"
         ],
         "Filename": "[ROOT_PATH]/20250328_094341.jpg",
         "ID": "287282",
@@ -170,6 +170,10 @@ The json result is as following:
     },
     {
         "Date": "2025:03:28 09:44:05",
+        "Dx": [
+            "Melanocytic nevus",
+            "Dysplastic nevus"
+        ],
         "Filename": "[ROOT_PATH]/20250328_094405.jpg",
         "ID": "287282",
         "Name": "John Doe",
@@ -185,7 +189,7 @@ The json result is as following:
             "Melanocytic Nevus"
         ],
         "Filename": "[ROOT_PATH]/20250328_094505.jpg",
-        "ID": "123456789",
+        "ID": "123456",
         "Name": "John Doe",
         "confirm": "",
         "err": "",
@@ -199,25 +203,26 @@ The json result is as following:
             "Melanocytic Nevus"
         ],
         "Filename": "[ROOT_PATH]/20250328_094513.jpg",
-        "ID": "Not provided",
+        "ID": "123456",
         "Name": "John Doe",
         "confirm": "",
         "err": "",
         "is_index": true,
-        "response": "{\n  \"Name\": \"John Doe\",\n  \"ID\": \"Not provided\"\n}"
+        "response": "{\n  \"Name\": \"John Doe\",\n  \"ID\": \"123456\"\n}"
     },
     {
         "Date": "2025:03:28 09:45:30",
         "Dx": [
-            "Suspected Dysplastic Nevus / Melanocytic Nevus"
+            "Suspected Dysplastic Nevus",
+            "Melanocytic Nevus"
         ],
         "Filename": "[ROOT_PATH]/20250328_094530.jpg",
-        "ID": "123456789",
+        "ID": "123456",
         "Name": "John Doe",
         "confirm": "",
         "err": "",
         "is_index": true,
-        "response": "{\n  \"Name\": \"John Doe\",\n  \"ID\": \"123456789\"\n}"
+        "response": "{\n  \"Name\": \"John Doe\",\n  \"ID\": \"123456\"\n}"
     },
     {
         "Date": "2025:03:28 09:45:54",
@@ -239,7 +244,7 @@ The json result is as following:
             "Melanocytic Nevus"
         ],
         "Filename": "[ROOT_PATH]/20250328_093859.jpg",
-        "ID": "123456789",
+        "ID": "Not provided",
         "Name": "John Doe",
         "confirm": ""
     },
@@ -249,7 +254,7 @@ The json result is as following:
             "Melanocytic Nevus"
         ],
         "Filename": "[ROOT_PATH]/20250328_093911.jpg",
-        "ID": "123456789",
+        "ID": "Not provided",
         "Name": "John Doe",
         "confirm": ""
     },
@@ -259,7 +264,7 @@ The json result is as following:
             "Melanocytic Nevus"
         ],
         "Filename": "[ROOT_PATH]/20250328_093920.jpg",
-        "ID": "123456789",
+        "ID": "Not provided",
         "Name": "John Doe",
         "confirm": ""
     },
@@ -269,9 +274,59 @@ The json result is as following:
             "Melanocytic Nevus"
         ],
         "Filename": "[ROOT_PATH]/20250328_093939.jpg",
-        "ID": "123456789",
+        "ID": "Not provided",
         "Name": "John Doe",
         "confirm": ""
+    },
+    {
+        "Dx": [
+            "Melanocytic nevus",
+            "Dysplastic nevus"
+        ],
+        "Filename": "[ROOT_PATH]/20250328_094416.jpg",
+        "ID": "287282",
+        "Name": "John Doe",
+        "confirm": "yes"
+    },
+    {
+        "Dx": [
+            "Melanocytic nevus",
+            "Dysplastic nevus"
+        ],
+        "Filename": "[ROOT_PATH]/20250328_094423.jpg",
+        "ID": "287282",
+        "Name": "John Doe",
+        "confirm": "yes"
+    },
+    {
+        "Dx": [
+            "Suspected Dysplastic Nevus",
+            "Melanocytic Nevus"
+        ],
+        "Filename": "[ROOT_PATH]/20250328_094538.jpg",
+        "ID": "123456",
+        "Name": "John Doe",
+        "confirm": ""
+    },
+    {
+        "Dx": [
+            "Suspected Dysplastic Nevus",
+            "Melanocytic Nevus"
+        ],
+        "Filename": "[ROOT_PATH]/20250328_094540.jpg",
+        "ID": "123456",
+        "Name": "John Doe",
+        "confirm": ""
+    },
+    {
+        "Dx": [
+            "Melanocytic nevus",
+            "Dysplastic nevus"
+        ],
+        "Filename": "[ROOT_PATH]/20250328_094607.jpg",
+        "ID": "287282",
+        "Name": "John Doe",
+        "confirm": "yes"
     }
 ]
 ```

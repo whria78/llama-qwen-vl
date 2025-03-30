@@ -1193,7 +1193,7 @@ struct clip_ctx * clip_model_load(const char * fname, const int verbosity = 1) {
         LOG_INF("%s: n_tensors:    %d\n", __func__, n_tensors);
         LOG_INF("%s: n_kv:         %d\n", __func__, n_kv);
         LOG_INF("%s: ftype:        %s\n", __func__, ftype_str.c_str());
-        LOG_INF("\n");
+        //LOG_INF("\n");
     }
     const int n_tensors = gguf_get_n_tensors(ctx);
 
