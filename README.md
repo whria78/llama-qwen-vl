@@ -64,7 +64,7 @@ If you continue to experience issues, please contact support or refer to the doc
 You can also run it from the Windows **Command Prompt (cmd)** using the following format:  
 
 ```
-vl.exe -m ./gguf/Qwen2-VL-72B-Instruct-Q4_K_M.gguf --mmproj ./gguf/Qwen2-VL-72B-Instruct-vision-encoder.gguf --temp 0.1 -p "Extract the patient's name and registration number. Response must be in JSON format ('Name','ID')." -t 16 --organize-photo --image [folder_name]
+vl-gpu.exe -m ./gguf/Qwen2-VL-72B-Instruct-Q4_K_M.gguf --mmproj ./gguf/Qwen2-VL-72B-Instruct-vision-encoder.gguf --temp 0.1 -p "Extract the patient's name and registration number. Response must be in JSON format ('Name','ID')." -t 16 --organize-photo --image [folder_name]
 ```
 
 **Note:** Replace `[folder_name]` with the actual path of the folder containing the images. Or use the GUI helper (VLRunner.exe). 
