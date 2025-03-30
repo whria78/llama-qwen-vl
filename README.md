@@ -79,7 +79,7 @@ vl-gpu.exe -m ./gguf/Qwen2-VL-72B-Instruct-Q4_K_M.gguf --mmproj ./gguf/Qwen2-VL-
 
 
 ### GPU Acceleration  
-If you have any **NVIDIA GPU**, you can replace `vl.exe` with `vl-gpu.exe` for faster execution. **`vl-gpu.exe` also works in CPU mode.**
+If you have any **NVIDIA GPU**, you can use `vl-gpu.exe` for faster execution. **`vl-gpu.exe` also works even if you do not have any GPU.**
 
 ### Performance Estimations  
 - **High-end GPU (e.g., RTX 3080 Ti 12GB VRAM)** → `vl-gpu.exe` takes about **less than 1 minute per image**.  
@@ -90,7 +90,7 @@ If you have any **NVIDIA GPU**, you can replace `vl.exe` with `vl-gpu.exe` for f
 
 ### Output  
 
-- The results are saved as `folder_name.json` inside the selected folder.  
+- The results are saved as `folder_name.json` inside the selected folder.  ex) d:/test --> test.json
 - You can check the results immediately in the `/RESULT` folder, where clinical photos are organized by date.
 
 ![Screenshot-tt-json](https://github.com/whria78/llama-qwen-vl/raw/main/capture-tt-json.PNG)
@@ -101,7 +101,7 @@ If you have any **NVIDIA GPU**, you can replace `vl.exe` with `vl-gpu.exe` for f
 
 ![Screenshot-medicalphoto2](https://github.com/whria78/llama-qwen-vl/raw/main/capture-medicalphoto2.PNG)
 
-- If you upload the `D:/qwen/tt` folder to **MedicalPhoto**, the JSON data will be applied, and the photos will be saved accordingly.  
+- If you upload the `D:/qwen/tt` folder (**NOT /RESULT FOLDER**) to **MedicalPhoto**, the JSON data will be applied, and the photos will be saved accordingly.  
 
 
 
