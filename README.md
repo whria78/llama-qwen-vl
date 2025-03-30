@@ -9,7 +9,7 @@
 ---
 
 ## Memory Requirements
-To ensure optimal performance, at least **64GB of RAM** is recommended. If your system has less memory, you may experience slow processing times or application crashes.
+⚠ At least **64GB of RAM** must be required. If your system has less memory, you may experience very slow processing times or application crashes.
 
 ## Microsoft Visual C++ Redistributable
 
