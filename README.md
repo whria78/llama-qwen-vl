@@ -109,17 +109,21 @@ If your **GPU has more than 6GB of VRAM**, you can replace `vl.exe` with `vl-gpu
 vl-gpu.exe -m ./gguf/Qwen2-VL-72B-Instruct-Q4_K_M.gguf --mmproj ./gguf/Qwen2-VL-72B-Instruct-vision-encoder.gguf --temp 0.1   -p "Extract the patient's name and registration number. Response must be in JSON format ('Name','ID')."   --index-confirm-prompt "Does it include the patient's name and registration number? Response must be YES or NO"   --json-meta-list "Dx"   --custom-confirm-prompt "Does it include a diagnosis in dermatology? Response must be YES or NO"   --custom-prompt "Extract and list all diagnoses. Response must be in JSON format ('Dx')."   --organize-photo --image [folder]
 ```
 
+- Example images, log, and JSON result:  
+🔗 [Sample Images](https://github.com/whria78/llama-qwen-vl/tree/main/samples_advanced)
+
+
+log.txt is as following:
+```
+
+```
+
 The json result is as following:
 ```json
 
 ```
 
-
-- Please check using the example images:  
-🔗 [Sample Images & JSON result](https://github.com/whria78/llama-qwen-vl/tree/main/samples_advanced)
-
-
-- You can also extract additional metadata such as **age, sex, and body site**, although the accuracy may be slightly lower:
+- You can also extract additional metadata such as **age, sex, and body site**, although the accuracy may be lower:
 
 ```sh
 vl-gpu.exe -m ./gguf/Qwen2-VL-72B-Instruct-Q4_K_M.gguf --mmproj ./gguf/Qwen2-VL-72B-Instruct-vision-encoder.gguf --temp 0.1   -p "Extract the patient's name and registration number. Response must be in JSON format ('Name','ID')."   --index-confirm-prompt "Does it include the patient's name and registration number? Response must be YES or NO"   --json-meta-list "Dx,Sex,Age,BodySite"   --custom-prompt "Extract all diagnoses, age, sex, and body site. Response must be in JSON format ('Dx','Sex','Age','BodySite')."   --organize-photo --image
