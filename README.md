@@ -77,6 +77,7 @@ If you have any **NVIDIA GPU**, you can replace `vl.exe` with `vl-gpu.exe` for f
 - **High-end GPU (e.g., RTX 3080 Ti 12GB VRAM)** → `vl-gpu.exe` takes about **less than 1 minute per image**.  
 - **Low-end GPU (e.g., GTX 1050 Ti 4GB VRAM)** → `vl-gpu.exe` or `vl.exe` takes about **5 minutes per image**.  
 - **CPU Execution** → `vl.exe` or `vl-gpu.exe` takes about **10 minutes per image**.  
+**Note:**  **System memory must be at least 64 GB.**
 
 ### Output  
 
