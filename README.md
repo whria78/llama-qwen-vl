@@ -9,7 +9,7 @@
 ---
 
 ## Memory Requirements
-⚠ At least **64GB of RAM** must be required. If your system has less memory, you may experience very slow processing times or application crashes.
+⚠ At least **64GB of system RAM (not GPU)** must be required. If your system has less memory, you may experience very slow processing times or application crashes.
 
 ## Microsoft Visual C++ Redistributable
 
