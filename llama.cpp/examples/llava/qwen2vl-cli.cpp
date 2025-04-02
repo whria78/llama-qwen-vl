@@ -1162,6 +1162,100 @@ int main(int argc, char ** argv) {
                     llava_free(ctx_llava);
                     
 
+                    // update JSON 
+                    
+                    std::string image_dir=std::filesystem::path(image).parent_path().string();
+
+                    std::string out_json_path=(std::filesystem::path(image_dir) / std::filesystem::path(std::filesystem::path(image_dir).filename().string()+".json")).string();
+                    std::replace(out_json_path.begin(), out_json_path.end(), '\\', '/');
+
+                    std::ifstream inFile(out_json_path);
+                    if (inFile.is_open()) {
+                        try {
+                            inFile >> jsonArray;
+                            if (jsonArray.is_object()) { // 기존 파일이 객체 `{}` 형태라면 배열로 변환
+                                json tmpArray = json::array();
+                                tmpArray.push_back(jsonArray);
+                                jsonArray = tmpArray;
+                            } else if (!jsonArray.is_array()) { // 객체도 배열도 아닌 경우 예외 처리
+                                std::cerr  << "Invalid JSON format: Expected array or object"<<std::endl;
+                                exit(1);
+                            }
+                        } catch (const std::exception &e) {
+                            std::cerr  << "█ WHRIA: JSON file read error: " << e.what() << ". Initializing empty array."  <<std::endl;
+                            jsonArray = json::array(); // 오류 발생 시 빈 배열 생성
+                        }
+                        inFile.close();
+                    } else {
+                        jsonArray = json::array(); // 파일이 없으면 빈 배열 생성
+                    }
+
+
+
+
+                    json jsonObj; // 개별 JSON 객체
+                    try {
+                        jsonObj = json::parse(response);
+                    } catch (const json::parse_error &e) {
+                        std::cerr  << "█ WHRIA: JSON Parsing Error: " << e.what()  <<std::endl;
+                    } catch (const std::exception &e) {
+                        std::cerr  << "█ WHRIA: Unknown Error: " << e.what()  <<std::endl;
+                    }
+                    jsonObj["Filename"] = image;
+
+
+                    json jsonObj_temp; // 개별 JSON 객체
+                    try {
+                        for (const auto& meta_ : meta_list) {
+                            std::cout  << "█ WHRIA: Custom metadata: " << meta_  <<std::endl;
+                            jsonObj_temp = json::parse(response);
+                            if (jsonObj_temp.contains(meta_)) 
+                            {
+                                if (jsonObj_temp[meta_].is_array()) {
+                                    jsonObj[meta_] = jsonObj_temp[meta_];
+                                }
+                                else if (jsonObj_temp[meta_].is_string()) {
+                                    json array = json::array();
+                                    array.push_back(jsonObj_temp[meta_]);
+                                    jsonObj[meta_] = array;
+                                }
+                            }
+                        }    
+                    } catch (const json::parse_error &e) {
+                        std::cerr  << "█ WHRIA: JSON Parsing Error: " << e.what()  <<std::endl;
+                    } catch (const std::exception &e) {
+                        std::cerr  << "█ WHRIA: Unknown Error: " << e.what()  <<std::endl;
+                    }
+
+
+
+
+                    // Filename 중복 여부 확인 후 업데이트 또는 추가
+                    bool found = false;
+                    for (auto &item : jsonArray) {
+                        if (item["Filename"] == jsonObj["Filename"]) {
+                            item = jsonObj; // 기존 항목 덮어쓰기
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found) {
+                        jsonArray.push_back(jsonObj); // 새로운 항목 추가
+                    }
+
+                                       
+
+                    // 파일에 덮어쓰기 (새로운 JSON 추가된 전체 배열 저장)
+                    std::ofstream outFile(out_json_path);
+                    if (outFile.is_open()) {
+                        outFile << jsonArray.dump(4); // JSON 배열을 파일에 저장 (들여쓰기 4칸)
+                        outFile.close();
+                        std::cout  << "█ WHRIA: JSON [" << image << "] appended to " << out_json_path  <<std::endl;
+                    } else {
+                        std::cerr  << "█ WHRIA: Failed to open " << out_json_path << " for writing"  <<std::endl;
+                    }
+
 
 
 
@@ -1257,7 +1351,8 @@ int main(int argc, char ** argv) {
                                     tmpArray.push_back(jsonArray);
                                     jsonArray = tmpArray;
                                 } else if (!jsonArray.is_array()) { // 객체도 배열도 아닌 경우 예외 처리
-                                    throw std::runtime_error("Invalid JSON format: Expected array or object");
+                                    std::cerr  << "Invalid JSON format: Expected array or object"<<std::endl;
+                                    exit(1);
                                 }
                             } catch (const std::exception &e) {
                                 std::cerr  << "█ WHRIA: JSON file read error: " << e.what() << ". Initializing empty array."  <<std::endl;
