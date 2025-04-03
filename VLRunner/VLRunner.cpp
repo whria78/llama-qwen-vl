@@ -94,7 +94,7 @@ void CheckGGUFDirectory(HWND hwnd) {
         }
     }
     if (empty) {
-        int result = MessageBoxW(hwnd, L"Please visit https://whria78.github.io/medicalphoto/warning and follow the instructions to download the model file.", L"Missing Model", MB_OKCANCEL | MB_ICONWARNING);
+        int result = MessageBoxW(hwnd, L"Please visit https://whria78.github.io/medicalphoto/warning and follow the instructions to download the model file.", L"Missing Model", MB_OK | MB_ICONWARNING);
         if (result == IDOK) ShellExecuteW(NULL, L"open", L"https://github.com/whria78/medicalphoto/warning", NULL, NULL, SW_SHOWNORMAL);
         
     }
@@ -114,7 +114,7 @@ void CheckUnicodeSupport(HWND hwnd) {
     UINT codePage = GetACP();
     if (codePage != 65001) { // 65001은 UTF-8 코드 페이지
         int result=MessageBoxW(hwnd, L"Command prompt does not support Unicode. Please visit https://whria78.github.io/medicalphoto/warning", L"Unicode Warning", MB_OK | MB_ICONWARNING);
-        if (result == IDOK) ShellExecuteW(NULL, L"open", L"https://whria78.github.io/medicalphoto/warning", NULL, NULL, SW_SHOWNORMAL);
+        //if (result == IDOK) ShellExecuteW(NULL, L"open", L"https://whria78.github.io/medicalphoto/warning", NULL, NULL, SW_SHOWNORMAL);
     }
 }
 
@@ -172,10 +172,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
         CheckRedistributableVersion(hwnd);
         CreateWindowW(L"BUTTON", L"Reset", WS_VISIBLE | WS_CHILD, 5, 5, 390, 30, hwnd, (HMENU)ID_BUTTON_RESET, NULL, NULL);
         CreateWindowW(L"BUTTON", L"Browse", WS_VISIBLE | WS_CHILD, 5, 40, 70, 25, hwnd, (HMENU)ID_BUTTON_BROWSE, NULL, NULL);
-        hStaticFolder = CreateWindowW(L"STATIC", L"(No folder selected)", WS_VISIBLE | WS_CHILD, 80, 40, 300, 25, hwnd, (HMENU)ID_STATIC_FOLDER, NULL, NULL);
+        hStaticFolder = CreateWindowW(L"STATIC", L"(No folder selected)", WS_VISIBLE | WS_CHILD, 80, 40, 600, 25, hwnd, (HMENU)ID_STATIC_FOLDER, NULL, NULL);
         hEditCommand = CreateWindowW(L"EDIT", defaultCommand.c_str(), WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL | ES_WANTRETURN,
-            10, 70, 380, 170, hwnd, (HMENU)ID_EDIT_COMMAND, NULL, NULL);
-        CreateWindowW(L"BUTTON", L"Run", WS_VISIBLE | WS_CHILD, 5, 245, 390, 30, hwnd, (HMENU)ID_BUTTON_RUN, NULL, NULL);
+            10, 70, 380, 470, hwnd, (HMENU)ID_EDIT_COMMAND, NULL, NULL);
+        CreateWindowW(L"BUTTON", L"Run", WS_VISIBLE | WS_CHILD, 5, 545, 390, 30, hwnd, (HMENU)ID_BUTTON_RUN, NULL, NULL);
         return 0;
 
     case WM_COMMAND:
@@ -207,7 +207,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     RegisterClassW(&wc);
 
     HWND hwnd = CreateWindowW(wc.lpszClassName, L"Commander", WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-        CW_USEDEFAULT, CW_USEDEFAULT, 420, 320, NULL, NULL, hInstance, NULL);
+        CW_USEDEFAULT, CW_USEDEFAULT, 420, 620, NULL, NULL, hInstance, NULL);
 
     MSG msg;
     while (GetMessage(&msg, NULL, 0, 0)) {
