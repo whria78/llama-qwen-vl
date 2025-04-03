@@ -1,0 +1,68 @@
+[
+    {
+        "Date": "2025:03:28 09:40:08",
+        "Filename": "D:/qwen/tttt/20250328_094008.jpg",
+        "ID": "287282",
+        "Name": "John Doe",
+        "confirm": "yes",
+        "is_index": true
+    },
+    {
+        "Date": "2025:03:28 09:40:19",
+        "Dx": [
+            "Suspected Dysplastic Nevus",
+            "Melanocytic Nevus"
+        ],
+        "Filename": "D:/qwen/tttt/20250328_094018.jpg",
+        "ID": "287282",
+        "Name": "John Doe",
+        "confirm": "yes",
+        "is_index": true
+    },
+    {
+        "Date": "2025:03:28 09:43:41",
+        "Dx": [
+            "Melanocytic nevus",
+            "Dysplastic nevus"
+        ],
+        "Filename": "D:/qwen/tttt/20250328_094341.jpg",
+        "ID": "287282",
+        "Name": "John Doe",
+        "confirm": "yes",
+        "is_index": true
+    },
+    {
+        "Date": "2025:03:28 09:44:05",
+        "Dx": [
+            "Melanocytic nevus",
+            "Dysplastic nevus"
+        ],
+        "Filename": "D:/qwen/tttt/20250328_094405.jpg",
+        "ID": "287282",
+        "Name": "John Doe",
+        "confirm": "yes",
+        "is_index": true
+    },
+    {
+        "Date": "2025:03:28 09:44:17",
+        "Dx": [
+            "Melanocytic nevus",
+            "Dysplastic nevus"
+        ],
+        "Filename": "D:/qwen/tttt/20250328_094416.jpg",
+        "ID": "287282",
+        "Name": "John Doe",
+        "confirm": "yes"
+    },
+    {
+        "Date": "2025:03:28 09:44:23",
+        "Dx": [
+            "Melanocytic nevus",
+            "Dysplastic nevus"
+        ],
+        "Filename": "D:/qwen/tttt/20250328_094423.jpg",
+        "ID": "287282",
+        "Name": "John Doe",
+        "confirm": "yes"
+    }
+]

@@ -1,0 +1,32 @@
+D:/qwen/tt/20250303_124414.jpg
+Which part of the body is it? The response must be in JSON format ('BodySite').
+```json
+{
+  "BodySite": "Palm"
+}
+```</s>
+
+D:/qwen/tt/20250303_124421.jpg
+Which part of the body is it? The response must be in JSON format ('BodySite').
+```json
+{
+  "BodySite": "Palm"
+}
+```</s>
+
+D:/qwen/tt/20250303_124443.jpg
+Which part of the body is it? The response must be in JSON format ('BodySite').
+```json
+{
+  "BodySite": "hand"
+}
+```</s>
+
+D:/qwen/tt/20250303_124447.jpg
+Which part of the body is it? The response must be in JSON format ('BodySite').
+```json
+{
+  "BodySite": "Hand"
+}
+```</s>
+

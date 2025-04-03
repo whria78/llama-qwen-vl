@@ -1,0 +1,60 @@
+D:/qwen/tttt/20250328_094416.jpg
+Which part of the body is it? The response must be in JSON format ('BodySite').
+```json
+{
+  "BodySite": "Hand"
+}
+```</s>
+
+D:/qwen/tttt/20250328_094423.jpg
+Which part of the body is it? The response must be in JSON format ('BodySite').
+```json
+{
+  "BodySite": "Palm"
+}
+```</s>
+
+D:/qwen/tt/20250303_124408.jpg
+Does it include patient's name and registration number? Response must be YES or NO
+Yes.</s>
+
+D:/qwen/tt/20250303_124408.jpg
+Extract the patient's name and registration number. Response must be in JSON format ('Name','ID').
+```json
+{
+  "Name": "Eric Han",
+  "ID": "20120222"
+}
+```</s>
+
+D:/qwen/tt/20250303_124408.jpg
+Does it include diagnosis in dermatology? Response must be YES or NO
+NO</s>
+
+D:/qwen/tt/20250303_124430.jpg
+Does it include patient's name and registration number? Response must be YES or NO
+Yes.</s>
+
+D:/qwen/tt/20250303_124430.jpg
+Extract the patient's name and registration number. Response must be in JSON format ('Name','ID').
+```json
+{
+  "Name": "Aaliyah",
+  "ID": "29832923"
+}
+```</s>
+
+D:/qwen/tt/20250303_124430.jpg
+Does it include diagnosis in dermatology? Response must be YES or NO
+Yes.</s>
+
+D:/qwen/tt/20250303_124430.jpg
+Extract and list all diagnoses. Response must be in JSON format ('Dx').
+```json
+{
+  "Dx": [
+    "Herpes simplex"
+  ]
+}
+```</s>
+

@@ -1,0 +1,9 @@
+// Example of Extracting Name + ID + Dx + Bodysite
+// --json-meta-list "Dx,BodySite"
+// 1st command
+vl-gpu.exe -m ./gguf/Qwen2-VL-72B-Instruct-Q4_K_M.gguf --mmproj ./gguf/Qwen2-VL-72B-Instruct-vision-encoder.gguf --temp 0.1 -p "Extract the patient's name and registration number. Response must be in JSON format ('Name','ID')." --index-confirm-prompt "Does it include patient's name and registration number? Response must be YES or NO" --json-meta-list "Dx,BodySite" --custom-confirm-prompt "Does it include diagnosis in dermatology? Response must be YES or NO" --custom-prompt "Extract and list all diagnoses. Response must be in JSON format ('Dx')." --organize-photo --image D:\qwen\tt
+
+// 2nd command
+// --merge-metadata
+// --custom-prompt-for C
+vl-gpu.exe -m ./gguf/Qwen2-VL-72B-Instruct-Q4_K_M.gguf --mmproj ./gguf/Qwen2-VL-72B-Instruct-vision-encoder.gguf --temp 0.1 --json-meta-list "Dx,BodySite" --custom-prompt "Which part of the body is it? The response must be in JSON format ('BodySite')." --merge-metadata --custom-prompt-for C --organize-photo --image D:\qwen\tt

@@ -1,0 +1,90 @@
+D:/qwen/tttt/20250328_094008.jpg
+Does it include patient's name and registration number? Response must be YES or NO
+NO</s>
+
+D:/qwen/tttt/20250328_094008.jpg
+Extract the patient's name and registration number. Response must be in JSON format ('Name','ID').
+```json
+{
+  "Name": "John Doe",
+  "ID": "1985"
+}
+```</s>
+
+D:/qwen/tttt/20250328_094008.jpg
+Does it include diagnosis in dermatology? Response must be YES or NO
+No</s>
+
+D:/qwen/tttt/20250328_094018.jpg
+Does it include patient's name and registration number? Response must be YES or NO
+NO</s>
+
+D:/qwen/tttt/20250328_094018.jpg
+Extract the patient's name and registration number. Response must be in JSON format ('Name','ID').
+```json
+{
+  "Name": "John Doe",
+  "ID": "123456"
+}
+```</s>
+
+D:/qwen/tttt/20250328_094018.jpg
+Does it include diagnosis in dermatology? Response must be YES or NO
+Yes.</s>
+
+D:/qwen/tttt/20250328_094018.jpg
+Extract and list all diagnoses. Response must be in JSON format ('Dx').
+```json
+{
+  "Dx": [
+    "Suspected Dysplastic Nevus",
+    "Melanocytic Nevus"
+  ]
+}
+```</s>
+
+D:/qwen/tttt/20250328_094341.jpg
+Does it include patient's name and registration number? Response must be YES or NO
+Yes.</s>
+
+D:/qwen/tttt/20250328_094341.jpg
+Extract the patient's name and registration number. Response must be in JSON format ('Name','ID').
+```json
+{
+  "Name": "John Doe",
+  "ID": "287282"
+}
+```</s>
+
+D:/qwen/tttt/20250328_094341.jpg
+Does it include diagnosis in dermatology? Response must be YES or NO
+Yes.</s>
+
+D:/qwen/tttt/20250328_094341.jpg
+Extract and list all diagnoses. Response must be in JSON format ('Dx').
+```json
+{
+  "Dx": [
+    "Melanocytic nevus",
+    "Dysplastic nevus"
+  ]
+}
+```</s>
+
+D:/qwen/tttt/20250328_094405.jpg
+Does it include patient's name and registration number? Response must be YES or NO
+Yes.</s>
+
+D:/qwen/tttt/20250328_094405.jpg
+Extract the patient's name and registration number. Response must be in JSON format ('Name','ID').
+```json
+{
+  "Name": "John Doe",
+  "ID": "287282"
+}
+```</s>
+
+D:/qwen/tttt/20250328_094405.jpg
+Does it include diagnosis in dermatology? Response must be YES or NO
+No</s>
+

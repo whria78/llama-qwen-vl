@@ -1,0 +1,70 @@
+[
+    {
+        "Date": "2025:03:03 12:44:08",
+        "Filename": "D:/qwen/tt/20250303_124408.jpg",
+        "ID": "20120222",
+        "Name": "Eric Han",
+        "confirm": "yes",
+        "is_index": true
+    },
+    {
+        "BodySite": [
+            "Palm"
+        ],
+        "Date": "2025:03:03 12:44:30",
+        "Dx": [
+            "Herpes simplex"
+        ],
+        "Filename": "D:/qwen/tt/20250303_124430.jpg",
+        "ID": "29832923",
+        "Name": "Aaliyah",
+        "confirm": "yes",
+        "is_index": true
+    },
+    {
+        "BodySite": [
+            "Palm"
+        ],
+        "Date": "2025:03:03 12:44:15",
+        "Filename": "D:/qwen/tt/20250303_124414.jpg",
+        "ID": "20120222",
+        "Name": "Eric Han",
+        "confirm": "yes"
+    },
+    {
+        "BodySite": [
+            "Palm"
+        ],
+        "Date": "2025:03:03 12:44:22",
+        "Filename": "D:/qwen/tt/20250303_124421.jpg",
+        "ID": "20120222",
+        "Name": "Eric Han",
+        "confirm": "yes"
+    },
+    {
+        "BodySite": [
+            "Palm"
+        ],
+        "Date": "2025:03:03 12:44:43",
+        "Dx": [
+            "Herpes simplex"
+        ],
+        "Filename": "D:/qwen/tt/20250303_124443.jpg",
+        "ID": "29832923",
+        "Name": "Aaliyah",
+        "confirm": "yes"
+    },
+    {
+        "BodySite": [
+            "Palm"
+        ],
+        "Date": "2025:03:03 12:44:47",
+        "Dx": [
+            "Herpes simplex"
+        ],
+        "Filename": "D:/qwen/tt/20250303_124447.jpg",
+        "ID": "29832923",
+        "Name": "Aaliyah",
+        "confirm": "yes"
+    }
+]
