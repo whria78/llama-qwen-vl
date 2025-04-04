@@ -18,10 +18,10 @@ This example demonstrates how to process dermatology images using `vl-gpu.exe` i
 #### 1️⃣ Step 1: Extract Patient Name, ID, and Diagnosis
 
 This command:
-- Extracts `Name` and `ID` from each image.
+- Extracts `Name` and `ID` from each index image.
 - Confirms if diagnosis-related information is present.
 - Extracts diagnosis (`Dx`) if available.
-- Saves all metadata in `result.csv` and logs in `log.txt`.
+- Saves all metadata in `result.csv`/`tt.json` and logs in `log.txt`.
 
 ```bash
 vl-gpu.exe \
@@ -40,9 +40,9 @@ vl-gpu.exe \
 #### 2️⃣ Step 2: Extract Body Site Information
 
 This command:
-- Analyzes the same images to determine which body part is shown.
-- Merges new metadata with the existing results from Step 1.
-- Updates `result.csv` and `log.txt`.
+- Analyzes clinical images to determine which body part is shown.
+- Merges additional metadata with the existing results from Step 1.
+- Updates `tt.json`, `result.csv` and `log.txt`.
 
 ```bash
 vl-gpu.exe \
@@ -59,5 +59,6 @@ vl-gpu.exe \
 
 ### 🗂 Output
 
+- `tt.json` – Contains all extracted metadata (Name, ID, Dx, BodySite).
 - `result.csv` – Contains all extracted metadata (Name, ID, Dx, BodySite).
 - `log.txt` – Processing logs and prompt-response pairs for auditing or debugging.
