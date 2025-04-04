@@ -5,6 +5,7 @@
 
 - The sample photos (ID&Name) are available at: https://github.com/whria78/llama-qwen-vl/tree/main/samples
 - The sample photos (ID&Name&Dx) are available at: https://github.com/whria78/llama-qwen-vl/tree/main/samples_advanced
+- The sample photos (ID&Name&Dx&BodySite) are available at: https://github.com/whria78/llama-qwen-vl/tree/main/samples_advanced2 
 
 ---
 
